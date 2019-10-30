@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>UACh Battlegrounds</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href="css/styles.css" type="text/css" rel="stylesheet">
+
+		<!-- Librería para ver el rendimiento -->
+		<script src="js/libs/stats.min.js"></script>
+
+		<!-- Librería para detectar la compatibilidad del navegador -->
+		<script src="js/libs/detector.js"></script>
+
+		<!-- Librería para facilitar el uso de WebGL -->
+		<script src="js/libs/three.js"></script>
+
+		<!-- Librería para importar archivos .GLT -->
+		<script src="js/libs/GLTFLoader.js"></script>
+
+		<!-- Librería para los physics -->
+		<script src="js/libs/cannon.js"></script>
+
+		<!-- Funciones de utilidad -->
+		<script src="js/game/utils.js"></script>
+
+		<!-- Loader -->
+		<script src="js/game/loader.js"></script>
+
+		<!-- Player -->
+		<script src="js/game/player.js"></script>
+
+		<!-- Input -->
+		<script src="js/game/input.js"></script>
+
+
+	</head>
+
+	<body>
+
+		<!-- Container de WebGL -->
+		<div id="gameWindow"></div>
+		<img id="crosshair" src="textures/UI/crosshair.png">
+
+		<!-- Lógica del juego -->
+		<script src="js/game/game.js"></script>
+
+		<script>
+
+			/*******************************
+			 **	Order de ejecución
+			 **
+			 **	1.- loadGameAssets() - loader.js
+			 ** 2.- init() - game.js
+			 **	3.- loop() - game.js
+			 **
+			 *******************************/
+
+
+			// Detecta si el navegador soporta WebGL
+			if (!Detector.webgl)
+			{
+				// Despliega alerta de incompatibilidad
+				Detector.addGetWebGLMessage();
+			}
+			else
+			{
+				// Inicia el juego (game/loader.js)
+				loadGameAssets();
+			}
+
+
+			// Muestra los stats (FPS)
+			(function()
+			{
+				var gameLoop = loop;
+				var stats = new Stats();
+
+				stats.domElement.style.position = "absolute";
+				stats.domElement.style.left = "0px";
+				stats.domElement.style.top = "0px";
+
+				document.body.appendChild( stats.domElement );
+
+				loop = function()
+				{
+					stats.begin();
+					gameLoop();
+					stats.end();
+				}
+			})();
+
+		</script>
+
+	</body>
+</html>
