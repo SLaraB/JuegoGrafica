@@ -18,6 +18,7 @@ function createPlayer()
   // Animador
   object.mixer = new THREE.AnimationMixer( object.model );
 
+  // Organiza las animaciones, dentro del modelo GLTF importado
   object.clips = {};
   object.clips.RF = THREE.AnimationClip.findByName( object.animations, 'Run F' );
   object.clips.RR = THREE.AnimationClip.findByName( object.animations, 'Run R' );

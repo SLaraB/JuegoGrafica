@@ -25,8 +25,11 @@ var light;
 // Estado del juego
 var gameState = "loading";
 
+// Lector de texturas
 const loader = new THREE.TextureLoader();
 
+
+// Textura del suelo
 var texture = loader.load( 'textures/ground/cobblestone.png', function ( texture ) {
 
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -35,6 +38,7 @@ var texture = loader.load( 'textures/ground/cobblestone.png', function ( texture
 
 } );
 
+// Material del suelo
 var material = new THREE.MeshPhongMaterial( {
 
    color: 0x111111,
@@ -43,9 +47,6 @@ var material = new THREE.MeshPhongMaterial( {
    map: texture
 
 } );
-//const playerMaterial = new THREE.MeshBasicMaterial({map: loader.load('textures/characters/player.jpg')})
-
-
 
 // Inicializa los componentes del juego
 function init()
@@ -72,9 +73,8 @@ function init()
   cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, physics );
 
   // Luz
-  light = new THREE.DirectionalLight( 0xffBB99, 10 ); //new THREE.PointLight( 0xffffff, 1, 10000 );
+  light = new THREE.DirectionalLight( 0xffBB99, 10 );
   light.rotation.x = (Math.PI/4);
-  //light.position.set( 0, 0, 2 );
 
   // Jugador
   player = createPlayer();

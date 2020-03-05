@@ -4,12 +4,11 @@
  * A collection of useful math and object helpers
  */
 
+// Retorna un objeto de un arreglo segun su id
 function findObjectById(id,arr)
 {
 	for(var i = 0; i < arr.length; i++)
-	{
 		if(arr[i].id = id) return arr[i];
-	}
 
 	return false;
 }
