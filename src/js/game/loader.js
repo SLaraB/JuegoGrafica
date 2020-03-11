@@ -14,14 +14,16 @@ var allTexturesLoaded = true;
 var allSoundsLoaded = true;
 
 // Lista de archivos a cargar
-const modelsPathList = ["characters/player.glb"];
+const modelsPathList = ["characters/player.glb","weapons/G36C.glb"];
 
 // Cargador de modelos .glb
 var modelLoader = new THREE.GLTFLoader();
 
-// Carga un modelo .glb
-function loadModel(url,callback)
+// Carga los modelos .glb uno a uno
+function loadModels()
 {
+  var url = modelsPathList[modelsList.length];
+
   console.log("Cargando modelo: " + url);
 
   // Load a glTF resource
@@ -29,12 +31,14 @@ function loadModel(url,callback)
 
   	function ( gltf )
     {
-      gltf.id = url;
       modelsList.push(gltf);
       if(modelsList.length == modelsPathList.length)
       {
         allModelsLoaded = true;
-        callback();
+        loaderCallback();
+      }
+      else {
+        loadModels();
       }
   	},
     function ( xlr )
@@ -50,15 +54,8 @@ function loadModel(url,callback)
 }
 
 // Cuando se termina de cargar todo
-var loaderCallback = function()
+function loaderCallback()
 {
   if(allModelsLoaded && allTexturesLoaded && allSoundsLoaded)
     init(); // Inicializa los componentes del juego
-}
-
-function loadGameAssets()
-{
-  // Todos los modelos
-  for(var i = 0; i < modelsPathList.length; i++)
-    loadModel(modelsPathList[i],loaderCallback);
 }

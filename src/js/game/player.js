@@ -7,10 +7,19 @@ function createPlayer()
   var object = new THREE.Object3D();
 
   // Se le asigna el modelo importado
-  var model = findObjectById("characters/plater.glb",modelsList);
+  var model = modelsList[0];
   object.model = model.scene.children[0];
   object.animations = model.animations;
   object.attach(object.model);
+
+  // Le asigna el arma al brazo
+  var weapon = modelsList[1];
+  object.weapon = weapon.scene;
+  object.weapon.scale.set(0.1,0.1,0.1);
+  var rightHandBone = object.getObjectByName("mixamorigRightHand");
+  rightHandBone.attach(object.weapon);
+  object.weapon.position.set(0,0.27,0);
+  object.weapon.rotateY(-0.03);
 
   // Se rota el modelo en 180º
   object.model.rotateY(Math.PI);

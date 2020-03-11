@@ -1,5 +1,5 @@
 {
-  "name": "UACh Wars",
+  "name": "austral-tournment",
   "version": "0.0.0",
   "private": false,
   "scripts": {
@@ -8,7 +8,9 @@
   "engines": {
     "node": ">=10.16.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "socket.io": "^2.3.0"
+  },
   "devDependencies": {
     "express": "^4.17.1"
   }
