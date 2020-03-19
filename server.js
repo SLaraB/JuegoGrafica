@@ -6,7 +6,7 @@ var io = require('socket.io')(server);
 app.use('/', express.static(__dirname + '/src'));
 
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+  console.log('Juego corriendo en la diección http://localhost:3000 !');
 });
 
 io.on('connection', function(socket) {

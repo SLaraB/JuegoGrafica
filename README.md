@@ -23,7 +23,7 @@ Shooter en tercera persona, multiplayer.
 * Socket.io (Multiplayer)
 
 ## Servidor
-* Node.js
+* Node.js >= 10.16.3
 
 ## Librerías del servidor
 * Express
