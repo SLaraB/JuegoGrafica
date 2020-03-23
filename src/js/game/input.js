@@ -147,4 +147,13 @@ var onDocumentMouseMove = function( event )
 
 }
 
+var onDocumentMouseDown = function( event )
+{
+  if(gameState != "playing") return;
+  player.gunFireParticle.visible = true;
+  setTimeout(function(){ player.gunFireParticle.visible = false; }, 50);
+
+}
+
 document.addEventListener('mousemove', onDocumentMouseMove, false);
+document.addEventListener('mousedown', onDocumentMouseDown, false);

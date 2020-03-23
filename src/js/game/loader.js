@@ -8,18 +8,19 @@ var modelsList = [];
 var texturesList = [];
 var soundsList = [];
 
-// Indica si se han terminado de cargar
-var allModelsLoaded = false;
-var allTexturesLoaded = true;
-var allSoundsLoaded = true;
-
-// Lista de archivos a cargar
+// Paths de modelos
 const modelsPathList = ["characters/player.glb","weapons/G36C.glb"];
+
+// Paths de texturas
+const texturesPathList = ["weapons/gunFire.jpg","ground/cobblestone.png"];
 
 // Cargador de modelos .glb
 var modelLoader = new THREE.GLTFLoader();
 
-// Carga los modelos .glb uno a uno
+// Lector de texturas
+const textureLoader = new THREE.TextureLoader();
+
+// Carga los modelos .glb
 function loadModels()
 {
   var url = modelsPathList[modelsList.length];
@@ -33,29 +34,46 @@ function loadModels()
     {
       modelsList.push(gltf);
       if(modelsList.length == modelsPathList.length)
-      {
-        allModelsLoaded = true;
-        loaderCallback();
-      }
-      else {
+        loadTextures();
+      else
         loadModels();
-      }
   	},
-    function ( xlr )
+    function (x)
     {
 
-  	},
+    },
   	function ( error )
     {
       console.log(error);
-  		alert( 'Ha ocurrido un error al cargar los datos.' );
   	}
   );
 }
 
-// Cuando se termina de cargar todo
-function loaderCallback()
+// Carga las texturas
+function loadTextures()
 {
-  if(allModelsLoaded && allTexturesLoaded && allSoundsLoaded)
-    init(); // Inicializa los componentes del juego
+  var url = texturesPathList[texturesList.length];
+
+  console.log("Cargando textura: " + url);
+
+  // Textura del suelo
+  textureLoader.load( texturesPath + url,
+
+    function ( texture )
+    {
+      texturesList.push(texture);
+      if(texturesList.length == texturesPathList.length)
+        init(); // Inicializa los componentes del juego
+      else
+        loadTextures();
+    },
+    function (x)
+    {
+
+    },
+  	function ( error )
+    {
+      console.log(error);
+  	}
+  );
 }

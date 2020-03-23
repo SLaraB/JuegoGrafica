@@ -2,7 +2,6 @@
 function createPlayer()
 {
   var mesh;
-
   // Se crea un objeto vacío
   var object = new THREE.Object3D();
 
@@ -20,6 +19,12 @@ function createPlayer()
   rightHandBone.attach(object.weapon);
   object.weapon.position.set(0,0.27,0);
   object.weapon.rotateY(-0.03);
+
+  // Gun Fire Particle
+  object.gunFireParticle = createGunFireParticle();
+  object.weapon.attach(object.gunFireParticle);
+  object.gunFireParticle.position.set(0.2,2,4);
+  object.gunFireParticle.visible = false;
 
   // Se rota el modelo en 180º
   object.model.rotateY(Math.PI);
@@ -77,6 +82,7 @@ function createPlayer()
     // Copia coordenadas de Cannon.js a Three.js
     object.position.copy(object.collider.position);
     object.position.y -= 0.3;
+    //object.gunFireParticle.lookAt(object.camera.position);
 
     // Actualiza las animaciones
     object.mixer.update( timeStep );
@@ -84,4 +90,33 @@ function createPlayer()
   }
 
   return object;
+}
+
+function createGunFireParticle()
+{
+
+
+  var material = new THREE.SpriteMaterial( { map: texturesList[0],blending: THREE.AdditiveBlending} );
+  var sprite = new THREE.Sprite( material );
+  sprite.scale.set(0.5,0.5,0.5);
+  return sprite;
+
+  /*
+  var particles = new THREE.Geometry()
+
+  var material = new THREE.ParticleBasicMaterial({
+    color: 0xFFFFFF,
+    size: 10,
+    map:texturesList[0],
+    blending: THREE.AdditiveBlending,
+    transparent: true
+  });
+
+  particles.vertices.push(new THREE.Vertex(new THREE.Vector3(0, 0, 0)));
+
+  var particleSystem = new THREE.ParticleSystem( particles, material);
+  particleSystem.sortParticles = true;
+
+  return new THREE.ParticleSystem( particles, material);
+  */
 }

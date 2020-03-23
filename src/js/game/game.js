@@ -25,40 +25,45 @@ var light;
 // Estado del juego
 var gameState = "loading";
 
-// Lector de texturas
-const loader = new THREE.TextureLoader();
-
-
 // Textura del suelo
-var texture = loader.load( 'textures/ground/cobblestone.png', function ( texture ) {
-
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.offset.set( 0, 0 );
-    texture.repeat.set( 10, 10 );
-
-} );
+var groundTexture;
 
 // Material del suelo
-var material = new THREE.MeshPhongMaterial( {
+var groundMaterial;
 
-   color: 0x111111,
-   specular:0x010101,
-   shininess: 0,
-   map: texture
-
-} );
+// Justa el tamaño del canvas
+function resizeScreen()
+{
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
 // Inicializa los componentes del juego
 function init()
 {
+  // Textura del suelo
+  groundTexture = texturesList[1];
+  groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+  groundTexture.offset.set( 0, 0 );
+  groundTexture.repeat.set( 10, 10 );
+
+  // Material del suelo
+  groundMaterial = new THREE.MeshPhongMaterial( {
+
+     color: 0x111111,
+     specular:0x010101,
+     shininess: 0,
+     map: groundTexture
+
+  } );
+
   // Ventana de visualización
-  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer = new THREE.WebGLRenderer({antialias:false});
 
   // Color para borrar cada frame
   renderer.setClearColor("#070B34");
 
-  // Tamaño del render ( Hay que hacer que se actualice si se cambia el tamaño de la pantalla )
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  // Tamaño del render
+  resizeScreen();
 
   // Añade la ventana al DOM
   document.getElementById("gameWindow").appendChild( renderer.domElement );
@@ -80,7 +85,7 @@ function init()
   player = createPlayer();
 
   // Suelo
-  ground = new THREE.Mesh(new THREE.PlaneGeometry( 100, 100, 0 ), material);
+  ground = new THREE.Mesh(new THREE.PlaneGeometry( 100, 100, 0 ), groundMaterial);
   ground.position.y = -2;
   ground.rotation.x = window.game.helpers.degToRad(-90);
   ground.collider = new CANNON.Body({ mass: 0, shape: new CANNON.Plane() });
