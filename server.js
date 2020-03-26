@@ -6,6 +6,8 @@ var io = require('socket.io')(server);
 var serverIdCounter = 0;
 var servers = [];
 
+const PORT = process.env.PORT || 3000;
+
 // Ruteo estático para carga de archivos
 app.use(express.static(__dirname + "/src"));
 
@@ -108,6 +110,6 @@ io.on('connection', function(socket)
 
 
 // Se crea el puerto
-server.listen(3000, function () {
+server.listen(PORT, function () {
   console.log('Juego corriendo en la diección http://localhost:3000 !');
 });
