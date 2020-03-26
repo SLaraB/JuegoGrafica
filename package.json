@@ -9,9 +9,7 @@
     "node": ">=10.16.3"
   },
   "dependencies": {
-    "socket.io": "^2.3.0"
-  },
-  "devDependencies": {
+    "socket.io": "^2.3.0",
     "express": "^4.17.1"
   }
 }
