@@ -6,6 +6,12 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link href="css/styles.css" type="text/css" rel="stylesheet">
 
+		<!-- jQuery -->
+		<script src="js/libs/jquery.js"></script>
+
+		<!-- Socket.IO -->
+		<script src="/socket.io/socket.io.js"></script>
+
 		<!-- Librería para ver el rendimiento -->
 		<script src="js/libs/stats.min.js"></script>
 
@@ -33,6 +39,9 @@
 		<!-- Input -->
 		<script src="js/game/input.js"></script>
 
+		<!-- Comunicación con el servidor -->
+		<script src="js/game/client.js"></script>
+
 
 	</head>
 
@@ -42,36 +51,77 @@
 		<div id="gameWindow"></div>
 		<img id="crosshair" src="textures/UI/crosshair.png">
 
+		<div id="mainMenu">
+
+			<div id="usernameMenu" class="mainMenu" style="display:block">
+				<img class="logo" src="textures/UI/logo.png"><br>
+				<div class="title">Austral Tournament</div>
+				<div class="loadMenu">
+					<div class="loadBarContainer">
+						<div class="loadBar"></div>
+					</div>
+					<div class="loadText">Loading assets...</div>
+				</div>
+				<input id="setUsernameInput" class="hidden" type="text" placeholder="Nombre de Usuario"><br>
+				<button id="setUsernameBtn" class="hidden" onclick="setUserName()">Continuar</button>
+				<button id="createServerBtn" class="hidden" onclick="showCreateServerMenu()">Crear Servidor</button><br>
+				<button id="showServersBtn" class="hidden" onclick="showServersListMenu()">Unirse a Servidor</button>
+			</div>
+
+			<div id="createServerMenu" class="mainMenu">
+				<div class="title">Nuevo Servidor</div>
+				<input id="serverNameInput" type="text" placeholder="Nombre del Servidor"><br>
+				<input id="serverPassInput" type="password" placeholder="Contraseña del Servidor"><br>
+				<button id="createServerBtn" onclick="createServer()">Crear</button><br>
+				<button id="cancelCreateServerBtn" onclick="showMainMenu()">Cancelar</button><br>
+			</div>
+
+			<div id="serversListMenu" class="mainMenu">
+				<div class="title">Servidores</div>
+				<div class="serversList"></div>
+				<button id="cancelServersListBtn" onclick="showMainMenu()">Volver</button><br>
+			</div>
+
+			<div id="loginServerMenu" class="mainMenu">
+				<div class="title"></div>
+				<input id="serverLoginInput" type="password" placeholder="Contraseña del Servidor"><br>
+				<button id="joinTeamABtn" onclick="login()">Login</button><br>
+				<button id="cancelServersListBtn" onclick="showServersListMenu()">Volver</button><br>
+			</div>
+
+			<div id="joinServerMenu" class="mainMenu">
+				<div class="serverTitle">Nombre del Servidor</div>
+				<div class="teams">
+					<button id="joinTeamABtn" onclick="joinTeamA()">Crear</button><br>
+				</div>
+				<button id="cancelServersListBtn" onclick="cancelJoinServer()">Volver</button><br>
+			</div>
+
+			<div id="mainMenuError" class="errorMsg">Mensaje de error.</div>
+		</div>
+
+
 		<!-- Lógica del juego -->
 		<script src="js/game/game.js"></script>
 
 		<script>
 
-			/*******************************
-			 **	Order de ejecución
-			 **
-			 **	1.- loadGameAssets() - loader.js
-			 ** 2.- init() - game.js
-			 **	3.- loop() - game.js
-			 **
-			 *******************************/
-
-
-			// Detecta si el navegador soporta WebGL
-			if (!Detector.webgl)
+			function initWebGL()
 			{
-				// Despliega alerta de incompatibilidad
-				Detector.addGetWebGLMessage();
-			}
-			else
-			{
-				// Inicia el juego (game/loader.js)
-				loadModels();
+				// Detecta si el navegador soporta WebGL
+		    if (!Detector.webgl)
+		    {
+		      // Despliega alerta de incompatibilidad
+		      Detector.addGetWebGLMessage();
+		    }
+		    else
+		    {
+		      // Inicia el juego (game/loader.js)
+		      loadModels();
+		    }
 			}
 
-
-			// Muestra los stats (FPS)
-			(function()
+			function showFPS()
 			{
 				var gameLoop = loop;
 				var stats = new Stats();
@@ -88,8 +138,8 @@
 					gameLoop();
 					stats.end();
 				}
-			})();
-
+			}
+		
 		</script>
 
 	</body>

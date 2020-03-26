@@ -5,6 +5,7 @@ Referencia API Three.js - https://threejs.org
 Referencia API Cannon.js - http://schteppe.github.io/cannon.js/docs/
 Referencia API Socket.io - https://socket.io
 Textura Bullet Hole - https://www.freepngimg.com/png/6870-bullet-shot-hole-png-image
+Efectos de Sonido - http://soundbible.com/2057-Footsteps-On-Cement.html
 Modelado 3D esceneario Miraflores - Carlos Leyan Romero
 Scripting de la lógica del juego - Eduardo Hopperdietzel
 Scripting de la lógica del servidor - Eduardo Hopperdietzel

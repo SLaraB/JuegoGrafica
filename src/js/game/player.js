@@ -10,6 +10,7 @@ function createPlayer()
   object.model = model.scene.children[0];
   object.animations = model.animations;
   object.attach(object.model);
+  object.model.children[1].castShadow = true;
 
   // Le asigna el arma al brazo
   var weapon = modelsList[1];
@@ -28,6 +29,9 @@ function createPlayer()
 
   // Se rota el modelo en 180º
   object.model.rotateY(Math.PI);
+
+  //
+  object.walking = false;
 
   // Animador
   object.mixer = new THREE.AnimationMixer( object.model );
@@ -72,9 +76,44 @@ function createPlayer()
   object.camera.rotateX(0.4);
   object.camera.position.x = object.cameraRotator.position.x + 0.4;
 
+  // instantiate a listener
+  object.audioListener = new THREE.AudioListener();
+  object.camera.add( object.audioListener );
+
+
+  // Mira
+  object.aim = new THREE.Object3D();
+  object.camera.attach(object.aim);
+  object.aim.position.set(0,0,-60);
+
+  // Camera RayCast
+  object.ray = new CANNON.Ray();
+
 
   // Se añade el eje al jugador
   object.attach(object.cameraRotator);
+
+  object.shoot = function()
+  {
+    object.gunFireParticle.visible = true;
+    var cPos = object.camera.getWorldPosition();
+    var aPos = object.aim.getWorldPosition();
+
+    // instantiate audio object
+    var shootSound = new THREE.Audio( object.audioListener );
+    shootSound.setBuffer(soundsList[0]);
+    shootSound.detune = (Math.random()*700)-350;
+    //shootSound.play();
+
+    if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(cPos.x,cPos.y,cPos.z),to:new CANNON.Vec3(aPos.x,aPos.y,aPos.z)}))
+    {
+
+      var hitPos = object.ray.result.hitPointWorld;
+      var hitNormal = object.ray.result.hitNormalWorld;
+      createBulletHole(hitPos.x,hitPos.y,hitPos.z,hitNormal.x,hitNormal.y,hitNormal.z,player.ray.result.body);
+    }
+    setTimeout(function(){ object.gunFireParticle.visible = false; }, 50);
+  }
 
   // Se debe llamar en cada iteración
   object.updatePlayer = function()
@@ -82,41 +121,78 @@ function createPlayer()
     // Copia coordenadas de Cannon.js a Three.js
     object.position.copy(object.collider.position);
     object.position.y -= 0.3;
-    //object.gunFireParticle.lookAt(object.camera.position);
 
     // Actualiza las animaciones
     object.mixer.update( timeStep );
 
   }
 
+  object.walkSoundLoop = function()
+  {
+    if(object.walking)
+    {
+      // instantiate audio object
+      var stepSound = new THREE.Audio( object.audioListener );
+      stepSound.setBuffer(soundsList[1]);
+      stepSound.detune = (Math.random()*700)-350;
+      //stepSound.play();
+    }
+    setTimeout(object.walkSoundLoop, 325);
+  }
+
+  object.walkSoundLoop();
   return object;
 }
 
+// Particula de fuego al disparar
 function createGunFireParticle()
 {
-
-
   var material = new THREE.SpriteMaterial( { map: texturesList[0],blending: THREE.AdditiveBlending} );
   var sprite = new THREE.Sprite( material );
   sprite.scale.set(0.5,0.5,0.5);
   return sprite;
+}
 
-  /*
-  var particles = new THREE.Geometry()
+// Impacto de bala
+function createBulletHole(x,y,z,nx,ny,nz,body)
+{
+  var parent = new THREE.Object3D();
+  parent.position.copy(body.position);
+  parent.quaternion.copy(body.quaternion);
+  var material = new THREE.MeshPhongMaterial( {
+     color: 0x111111,
+     specular:0x010101,
+     shininess: 0,
+     map: texturesList[2],
+     transparent:true
+  } );
+  var hole = new THREE.Mesh(new THREE.PlaneGeometry( 0.15, 0.15, 0 ), material);
+  hole.lookAt(new THREE.Vector3(nx,ny,nz));
+  hole.position.set(x+nx*0.01,y+ny*0.01,z+nz*0.01);
+  parent.attach(hole);
+  parent.body = body;
+  scene.add(parent);
+  bulletHoles.push(parent);
 
-  var material = new THREE.ParticleBasicMaterial({
-    color: 0xFFFFFF,
-    size: 10,
-    map:texturesList[0],
-    blending: THREE.AdditiveBlending,
-    transparent: true
-  });
+  // Add an impulse to the center
+  var worldPoint = new CANNON.Vec3(x,y,z);
+  var g = player.gunFireParticle.getWorldPosition();
 
-  particles.vertices.push(new THREE.Vertex(new THREE.Vector3(0, 0, 0)));
+  var impulse = new CANNON.Vec3(x-g.x,y-g.y,z-g.z);
+  impulse.normalize();
+  impulse = impulse.scale(2);
+  parent.body.applyImpulse(impulse,worldPoint);
 
-  var particleSystem = new THREE.ParticleSystem( particles, material);
-  particleSystem.sortParticles = true;
+  setTimeout(function(){ scene.remove(parent);bulletHoles.shift() }, 10000);
 
-  return new THREE.ParticleSystem( particles, material);
-  */
+}
+
+// Actualiza las posiciones de los impactos
+function updateBulletHoles()
+{
+  for(var i=0;i<bulletHoles.length;i++)
+  {
+    bulletHoles[i].position.copy(bulletHoles[i].body.position);
+    bulletHoles[i].quaternion.copy(bulletHoles[i].body.quaternion);
+  }
 }

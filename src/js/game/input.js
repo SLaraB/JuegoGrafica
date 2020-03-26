@@ -2,6 +2,7 @@ var input = {keys:{up:false,right:false,down:false,left:false,shift:false,space:
 var keysReleased = true;
 function onKeyDown(event)
 {
+    if(gameState != "playing") return;
     if(keysReleased)
     {
       player.mixer.stopAllAction();
@@ -32,6 +33,7 @@ function onKeyDown(event)
 
 function onKeyUp(event)
 {
+  if(gameState != "playing") return;
     keysReleased = true;
     player.mixer.stopAllAction();
     switch (event.which)
@@ -71,6 +73,7 @@ function inputEvents()
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/4);
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
+    player.walking = true;
   }
   else if(input.keys.down && input.keys.left)
   {
@@ -78,6 +81,7 @@ function inputEvents()
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/4);
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
+    player.walking = true;
   }
   else if(input.keys.up && input.keys.left)
   {
@@ -85,6 +89,7 @@ function inputEvents()
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
+    player.walking = true;
   }
   else if(input.keys.down && input.keys.right)
   {
@@ -92,18 +97,21 @@ function inputEvents()
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
+    player.walking = true;
   }
   else if(input.keys.up)
   {
     player.mixer.clipAction( player.clips.RF ).play();
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
+    player.walking = true;
   }
   else if(input.keys.down)
   {
     player.mixer.clipAction( player.clips.RB ).play();
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
+    player.walking = true;
   }
   else if(input.keys.right)
   {
@@ -111,6 +119,7 @@ function inputEvents()
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/2);
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
+    player.walking = true;
   }
   else if(input.keys.left)
   {
@@ -118,12 +127,14 @@ function inputEvents()
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/2);
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
+    player.walking = true;
   }
   else
   {
     player.mixer.clipAction( player.clips.IDLE ).play();
     player.collider.velocity.z = 0;
     player.collider.velocity.x = 0;
+    player.walking = false;
   }
 }
 
@@ -150,8 +161,7 @@ var onDocumentMouseMove = function( event )
 var onDocumentMouseDown = function( event )
 {
   if(gameState != "playing") return;
-  player.gunFireParticle.visible = true;
-  setTimeout(function(){ player.gunFireParticle.visible = false; }, 50);
+  player.shoot();
 
 }
 
