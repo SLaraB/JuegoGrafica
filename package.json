@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": false,
   "scripts": {
-    "start": "npm install;node server.js"
+    "start": "node server.js"
   },
   "engines": {
     "node": ">=10.16.3"
