@@ -34,6 +34,9 @@ var groundTexture;
 // Material del suelo
 var groundMaterial;
 
+// Otros jugadores
+var serverPlayers = [];
+
 var body;
 
 var box;
@@ -42,8 +45,6 @@ var box;
 // Oculta y centra el puntero en pantalla
 var mouseLocker;
 
-// Contenedor del canvas
-var gameWindow;
 
 // Justa el tamaño del canvas
 function resizeScreen()
@@ -52,9 +53,8 @@ function resizeScreen()
 }
 
 // Inicializa los componentes del juego
-function init()
+function init(msg)
 {
-
 
   // Textura del suelo
   groundTexture = texturesList[1];
@@ -86,14 +86,13 @@ function init()
   resizeScreen();
 
   // Añade la ventana al DOM
-  gameWindow = document.getElementById("gameWindow");
-  gameWindow.appendChild( renderer.domElement );
+  gameWindow.html( $(renderer.domElement) );
 
   // Oculta y centra el puntero en pantalla
-  mouseLocker = new THREE.PointerLockControls( null ,  gameWindow );
+  mouseLocker = new THREE.PointerLockControls( null ,  gameWindow[0] );
 
   //add event listener to your document.body
-  gameWindow.addEventListener('click', function () {
+  gameWindow[0].addEventListener('click', function () {
       mouseLocker.lock();
   }, false );
 
@@ -125,7 +124,7 @@ function init()
   scene.add( ambientLight );
 
   // Jugador
-  player = createPlayer();
+  player = createPlayer(msg.team,"playing");
 
 
   // Suelo
@@ -140,13 +139,14 @@ function init()
 
   // Añade los elementos a la escena visual
   //scene.add( new THREE.AxesHelper( 5 ) ); // Muestra los ejes
-  scene.add( player );
   scene.add( light );
   scene.add( ground );
 
 
   // Añade los elementos a la escena física
+  scene.add( player );
   physics.add( player.collider );
+
   physics.add( ground.collider );
 
   var boxGeo = new THREE.BoxGeometry( 1, 1, 1 );
@@ -169,10 +169,6 @@ function init()
   // Cambia al estado "Jugando"
   gameState = "playing";
 
-
-
-
-
   var imagePrefix = "textures/skyboxes/Sunny/";
   var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
   var imageSuffix = ".jpg";
@@ -190,6 +186,12 @@ function init()
   skyBox.rotation.x += Math.PI / 2;
   scene.add( skyBox );
 
+  msg.users.forEach((item, i) => {
+    var newPlayer = createServerPlayer(item.username,item.status,item.team);
+    serverPlayers.push(newPlayer);
+    scene.add( newPlayer );
+    physics.add( newPlayer.collider );
+  });
 
 
   // Inicia el juego
@@ -212,6 +214,7 @@ var loop = function ()
 
   box.position.copy(box.body.position);
   box.quaternion.copy(box.body.quaternion);
+
 
 
   // Render the scene

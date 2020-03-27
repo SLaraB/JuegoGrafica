@@ -1,11 +1,13 @@
 
-function createPlayer(team,status)
+function createServerPlayer(username,status,team)
 {
   var mesh;
   // Se crea un objeto vacío
   var object = new THREE.Object3D();
-  object.team = team;
+
+  object.username = username;
   object.status = status;
+  object.team = team;
 
   // Se le asigna el modelo importado
   var model = modelsList[0];
@@ -59,42 +61,7 @@ function createPlayer(team,status)
   object.collider.addShape(shape, new CANNON.Vec3( 0, 1.2, 0));
 
 
-  // Cámara
-  object.camera = new THREE.PerspectiveCamera( 80, window.innerWidth/window.innerHeight, 0.1, 1000 );
-
-  // Eje de rotación de la camara
-  object.cameraRotator = new THREE.Object3D();
-  object.cameraRotator.position = object.position;
-  object.cameraRotator.position.y = object.position.y + 0.7;
-
-  // Angulo límite vertical de cámara
-  object.cameraAngleLimit = window.game.helpers.degToRad(80);
-
-  // Se añade la cámara al eje
-  object.cameraRotator.attach(object.camera);
-  object.camera.position = object.cameraRotator.position;
-  object.camera.position.z = object.cameraRotator.position.z + 2.8;
-  object.camera.lookAt(object.cameraRotator.position);
-  object.camera.rotateX(0.4);
-  object.camera.position.x = object.cameraRotator.position.x + 0.4;
-
-  // instantiate a listener
-  object.audioListener = new THREE.AudioListener();
-  object.camera.add( object.audioListener );
-
-
-  // Mira
-  object.aim = new THREE.Object3D();
-  object.camera.attach(object.aim);
-  object.aim.position.set(0,0,-60);
-
-  // Camera RayCast
-  object.ray = new CANNON.Ray();
-
-
-  // Se añade el eje al jugador
-  object.attach(object.cameraRotator);
-
+  /*
   object.shoot = function()
   {
     object.gunFireParticle.visible = true;
@@ -116,7 +83,7 @@ function createPlayer(team,status)
     }
     setTimeout(function(){ object.gunFireParticle.visible = false; }, 50);
   }
-
+  */
   // Se debe llamar en cada iteración
   object.updatePlayer = function()
   {
@@ -127,10 +94,9 @@ function createPlayer(team,status)
     // Actualiza las animaciones
     object.mixer.update( timeStep );
 
-    socket.emit("sendTransform",{x:object.collider.position.x,y:object.collider.position.y});
-
   }
 
+  /*
   object.walkSoundLoop = function()
   {
     if(object.walking)
@@ -143,60 +109,8 @@ function createPlayer(team,status)
     }
     setTimeout(object.walkSoundLoop, 325);
   }
+  */
 
-  object.walkSoundLoop();
+  //object.walkSoundLoop();
   return object;
-}
-
-// Particula de fuego al disparar
-function createGunFireParticle()
-{
-  var material = new THREE.SpriteMaterial( { map: texturesList[0],blending: THREE.AdditiveBlending} );
-  var sprite = new THREE.Sprite( material );
-  sprite.scale.set(0.5,0.5,0.5);
-  return sprite;
-}
-
-// Impacto de bala
-function createBulletHole(x,y,z,nx,ny,nz,body)
-{
-  var parent = new THREE.Object3D();
-  parent.position.copy(body.position);
-  parent.quaternion.copy(body.quaternion);
-  var material = new THREE.MeshPhongMaterial( {
-     color: 0x111111,
-     specular:0x010101,
-     shininess: 0,
-     map: texturesList[2],
-     transparent:true
-  } );
-  var hole = new THREE.Mesh(new THREE.PlaneGeometry( 0.15, 0.15, 0 ), material);
-  hole.lookAt(new THREE.Vector3(nx,ny,nz));
-  hole.position.set(x+nx*0.01,y+ny*0.01,z+nz*0.01);
-  parent.attach(hole);
-  parent.body = body;
-  scene.add(parent);
-  bulletHoles.push(parent);
-
-  // Add an impulse to the center
-  var worldPoint = new CANNON.Vec3(x,y,z);
-  var g = player.gunFireParticle.getWorldPosition();
-
-  var impulse = new CANNON.Vec3(x-g.x,y-g.y,z-g.z);
-  impulse.normalize();
-  impulse = impulse.scale(2);
-  parent.body.applyImpulse(impulse,worldPoint);
-
-  setTimeout(function(){ scene.remove(parent);bulletHoles.shift() }, 10000);
-
-}
-
-// Actualiza las posiciones de los impactos
-function updateBulletHoles()
-{
-  for(var i=0;i<bulletHoles.length;i++)
-  {
-    bulletHoles[i].position.copy(bulletHoles[i].body.position);
-    bulletHoles[i].quaternion.copy(bulletHoles[i].body.quaternion);
-  }
 }

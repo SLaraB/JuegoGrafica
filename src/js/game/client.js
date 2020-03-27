@@ -1,8 +1,17 @@
 // Socket.io
 var socket;
 
+// Contenedor del canvas
+var gameWindow;
+
+// Mira
+var crosshair;
+
 // Loading bar
 var loadMenu,loadBar,loadInfo;
+
+// Menú principal
+var mainMenu;
 
 // Input para asignar nombre de usuario
 var setUsernameInput;
@@ -21,6 +30,12 @@ var serversListMenu;
 
 // Menú para iniciar sesión
 var loginServerMenu;
+
+// Input de password para ingresar a servidor
+var loginServerPasswordInput;
+
+// Botón para ingresar a servidor
+var loginServerBtn;
 
 // Lista de servidores
 var serversList;
@@ -54,7 +69,12 @@ $(function () {
     // Se conecta al servidor
     socket = io();
 
+    // Game canvas
+    gameWindow = $("#gameWindow");
+    crosshair = $("#crosshair");
+
     // Obtiene los elementos del DOM
+    mainMenu = $("#mainMenu");
     loadMenu = $(".loadMenu");
     loadBar = $(".loadBar");
     loadInfo = $(".loadText");
@@ -64,6 +84,8 @@ $(function () {
     serverPassInput = $("#serverPassInput");
     serversListMenu = $("#serversListMenu");
     loginServerMenu = $("#loginServerMenu");
+    loginServerPasswordInput = $("#loginServerPasswordInput");
+    loginServerBtn = $("#loginServerBtn");
     setUsernameInput = $("#setUsernameInput");
     setUsernameBtn = $("#setUsernameBtn");
     mainMenuError = $("#mainMenuError");
@@ -76,7 +98,7 @@ $(function () {
     initWebGL();
 
     // Muestra los FPS
-    showFPS();
+    //showFPS();
 
     // Obtiene el nombre de usuario usado previamente
     var prevUsername = localStorage.getItem("username");
@@ -110,7 +132,7 @@ $(function () {
       // Si se asigna con éxito
       if(msg.status)
       {
-        cancelCreateServer();
+        showServersListMenu();
       }
       else
       {
@@ -136,7 +158,24 @@ $(function () {
       serversList.html(html);
 
       allMainMenus.hide();
+      mainMenuError.hide();
       serversListMenu.show();
+    });
+
+    // Respuesta de login
+    socket.on("loginResponse",function(msg)
+    {
+      if(msg.status)
+      {
+        mainMenu.hide();
+        gameWindow.show();
+        crosshair.show();
+        init(msg);
+      }
+      else
+      {
+        mainMenuError.html(msg.msg).show();
+      }
     });
 
   });
@@ -171,9 +210,8 @@ function createServer()
 // Muestra el menú para crear un servidor
 function showServersListMenu()
 {
-  allMainMenus
+  allMainMenus.hide();
   mainMenuError.hide();
-  serversListMenu.show();
   socket.emit('getServersList');
 }
 
@@ -185,4 +223,10 @@ function showServerLoginMenu(id)
   currentServer = findObjectById(parseInt(id),servers);
   loginServerMenu.find(".title").html(htmlEntities(currentServer.name));
   loginServerMenu.show();
+}
+
+// Solicita el ingreso a servidor
+function logIntoServer()
+{
+  socket.emit('logIntoServer',{id:currentServer.id,pass:loginServerPasswordInput.val()});
 }

@@ -355,19 +355,20 @@ THREE.PointerLockControls = function ( camera, domElement ) {
 
 	function onMouseMove( event ) {
 
+		return;
 		if ( scope.isLocked === false ) return;
 
 		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-		euler.setFromQuaternion( camera.quaternion );
+		euler.setFromQuaternion( player.camera.quaternion );
 
 		euler.y -= movementX * 0.002;
 		euler.x -= movementY * 0.002;
 
 		euler.x = Math.max( - PI_2, Math.min( PI_2, euler.x ) );
 
-		camera.quaternion.setFromEuler( euler );
+		player.camera.quaternion.setFromEuler( euler );
 
 		scope.dispatchEvent( changeEvent );
 

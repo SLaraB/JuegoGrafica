@@ -85,8 +85,9 @@ io.on('connection', function(socket)
         return;
       }
     }
-    servers.push({id:serverIdCounter,name:msg.name,pass:msg.pass,creator:socket.username,users:[],date:Date.now()});
+    servers.push({id:serverIdCounter,name:msg.name,pass:msg.pass,creator:socket.username,users:[],date:Date.now(),teamAKills:0,teamBKills:0});
     serverIdCounter++;
+    socket.emit("createServerResponse",{status:true});
     console.log("Nuevo servidor '" + msg.name + "' creado por " + socket.username + ".");
   });
 
@@ -102,8 +103,81 @@ io.on('connection', function(socket)
     socket.emit('serversListResponse',serversList);
   });
 
+  // Inicio de sesión en servidor
+  socket.on('logIntoServer', function(msg)
+  {
+    if(typeof msg != "object")
+    {
+      socket.emit('loginResponse',{status:false,msg:"Error de request."});
+      return;
+    }
+    if(!msg.hasOwnProperty("id") || !msg.hasOwnProperty("pass"))
+    {
+      socket.emit('loginResponse',{status:false,msg:"Request incompleta."});
+      return;
+    }
+
+    if(typeof msg.id != "number" || typeof msg.pass != "string")
+    {
+      socket.emit('loginResponse',{status:false,msg:"Request inválida."});
+      return;
+    }
+
+    for(var i = 0;i<servers.length;i++)
+    {
+      if(servers[i].id == msg.id && servers[i].pass==msg.pass)
+      {
+
+        var teamACount = 0;
+        var teamBCount = 0;
+
+        for(var u = 0;u<servers[i].users.length;u++)
+        {
+          if(servers[i].users[u].team == "A")teamACount++;
+          if(servers[i].users[u].team == "B")teamBCount++;
+        }
+
+        if(teamACount<teamBCount)
+          socket.team = "A";
+        else
+          socket.team = "B";
+
+        var users = [];
+
+        for(var u = 0;u<servers[i].users.length;u++)
+        {
+          users.push({username:servers[i].users[u].username,team:servers[i].users[u].team,status:servers[i].users[u].status});
+          servers[i].users[u].emit("newUserLogged",{username:socket.username,team:socket.team,status:"loading"});
+        }
+
+        servers[i].users.push(socket);
+        socket.currentServer = servers[i];
+
+        socket.emit('loginResponse',{status:true,team:socket.team,users:users});
+        return;
+      }
+    }
+
+    socket.emit('loginResponse',{status:false,msg:"Contraseña incorrecta."});
+  });
+
   socket.on('disconnect', function()
   {
+    if(socket.hasOwnProperty("currentServer"))
+    {
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        if(socket.currentServer.users[i].username == socket.username)
+        {
+          socket.currentServer.users.splice(i,1);
+          break;
+        }
+      }
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        socket.currentServer.users[i].emit("userDisconnected",socket.username);
+      }
+    }
     console.log('Cliente ('+socket.id+') desconectado.');
   });
 });
