@@ -9,13 +9,16 @@ var texturesList = [];
 var soundsList = [];
 
 // Paths de modelos
-const modelsPathList = ["characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb"];
+const modelsPathList = ["characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb"];
 
 // Paths de texturas
 const texturesPathList = ["weapons/gunFire.jpg","ground/whiteGround.jpg","weapons/bulletHole.png","stuff/woodenBox.jpg"];
 
 // Paths de sonidos
 const soundsPathList = ["FX/Shoot.mp3","FX/Step.mp3"];
+
+// Activa el cache
+THREE.Cache.enabled = true;
 
 // Cargador de modelos .glb
 const modelLoader = new THREE.GLTFLoader();
