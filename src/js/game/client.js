@@ -187,7 +187,7 @@ $(function () {
     socket.on("sendTransform",function(msg)
     {
       var ply = serverPlayers[msg.username];
-      ply.collider.position.set(msg.x,msg.y,msg.z);
+      ply.targetPosition = new CANNON.Vec3(msg.x,msg.y,msg.z);
       ply.rotation.set(msg.qx,msg.qy,msg.qz);
       if(ply.currentAnimation != msg.anim)
       {

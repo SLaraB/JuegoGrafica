@@ -36,6 +36,7 @@ function createServerPlayer(username,status,team,human,gun)
 
   //
   object.walking = true;
+  object.targetPosition = new CANNON.Vec3(0,0,0);
 
   // Animador
   object.mixer = new THREE.AnimationMixer( object.model );
@@ -89,6 +90,7 @@ function createServerPlayer(username,status,team,human,gun)
   // Se debe llamar en cada iteración
   object.updatePlayer = function()
   {
+    object.collider.position.lerp(object.targetPosition,0.5,object.collider.position);
     // Copia coordenadas de Cannon.js a Three.js
     object.position.copy(object.collider.position);
     object.position.y -= 0.3;
