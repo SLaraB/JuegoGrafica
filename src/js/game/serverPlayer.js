@@ -10,14 +10,14 @@ function createServerPlayer(username,status,team)
   object.team = team;
 
   // Se le asigna el modelo importado
-  var model = modelsList[0];
+  var model =  modelsList[2];
   object.model = model.scene.children[0];
   object.animations = model.animations;
   object.attach(object.model);
   object.model.children[1].castShadow = true;
 
   // Le asigna el arma al brazo
-  var weapon = modelsList[1];
+  var weapon = modelsList[3];
   object.weapon = weapon.scene;
   object.weapon.scale.set(0.1,0.1,0.1);
   var rightHandBone = object.getObjectByName("mixamorigRightHand");
