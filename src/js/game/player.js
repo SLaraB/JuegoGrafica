@@ -50,6 +50,9 @@ function createPlayer(team,status)
   object.clips.RFL = THREE.AnimationClip.findByName( object.animations, 'Run F L' );
   object.clips.IDLE = THREE.AnimationClip.findByName( object.animations, 'Idle' );
 
+  object.currentAnimation = "IDLE";
+  object.prevAnimation = "none";
+
   // Physics
   var shape = new CANNON.Sphere(0.3);
   object.collider = new CANNON.Body({ mass: 1 });
@@ -127,7 +130,15 @@ function createPlayer(team,status)
     // Actualiza las animaciones
     object.mixer.update( timeStep );
 
-    socket.emit("sendTransform",{x:object.collider.position.x,y:object.collider.position.y});
+    socket.emit("sendTransform",{
+      anim:object.currentAnimation,
+      x:object.collider.position.x,
+      y:object.collider.position.y,
+      z:object.collider.position.z,
+      qx:object.rotation.x,
+      qy:object.rotation.y,
+      qz:object.rotation.z
+    });
 
   }
 

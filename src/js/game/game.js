@@ -35,7 +35,7 @@ var groundTexture;
 var groundMaterial;
 
 // Otros jugadores
-var serverPlayers = [];
+var serverPlayers = {};
 
 var body;
 
@@ -187,11 +187,12 @@ function init(msg)
   scene.add( skyBox );
 
   msg.users.forEach((item, i) => {
-    var newPlayer = createServerPlayer(item.username,item.status,item.team);
-    serverPlayers.push(newPlayer);
-    scene.add( newPlayer );
-    physics.add( newPlayer.collider );
+    loadNewPlayer(item);
   });
+
+
+
+
 
 
   // Inicia el juego
@@ -199,6 +200,25 @@ function init(msg)
 }
 
 
+function loadNewPlayer(item)
+{
+  modelLoader.load( modelsPath + modelsPathList[0],
+
+    function ( human )
+    {
+      modelLoader.load( modelsPath + modelsPathList[1],
+
+        function ( gun )
+        {
+          var newPlayer = createServerPlayer(item.username,item.status,item.team,human,gun);
+          serverPlayers[item.username] = newPlayer;
+          scene.add( newPlayer );
+          physics.add( newPlayer.collider );
+        }
+      );
+    }
+  );
+}
 
 
 
@@ -211,6 +231,13 @@ var loop = function ()
 	inputEvents();
 	updatePhysics();
   updateBulletHoles();
+
+  for(var key in serverPlayers)
+  {
+    serverPlayers[key].updatePlayer();
+  }
+
+
 
   box.position.copy(box.body.position);
   box.quaternion.copy(box.body.quaternion);

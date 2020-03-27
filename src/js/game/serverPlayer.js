@@ -1,5 +1,5 @@
 
-function createServerPlayer(username,status,team)
+function createServerPlayer(username,status,team,human,gun)
 {
   var mesh;
   // Se crea un objeto vacío
@@ -10,14 +10,14 @@ function createServerPlayer(username,status,team)
   object.team = team;
 
   // Se le asigna el modelo importado
-  var model =  modelsList[2];
+  var model =  human;
   object.model = model.scene.children[0];
   object.animations = model.animations;
   object.attach(object.model);
   object.model.children[1].castShadow = true;
 
   // Le asigna el arma al brazo
-  var weapon = modelsList[3];
+  var weapon = gun;
   object.weapon = weapon.scene;
   object.weapon.scale.set(0.1,0.1,0.1);
   var rightHandBone = object.getObjectByName("mixamorigRightHand");
@@ -35,7 +35,7 @@ function createServerPlayer(username,status,team)
   object.model.rotateY(Math.PI);
 
   //
-  object.walking = false;
+  object.walking = true;
 
   // Animador
   object.mixer = new THREE.AnimationMixer( object.model );
@@ -51,6 +51,8 @@ function createServerPlayer(username,status,team)
   object.clips.RBL = THREE.AnimationClip.findByName( object.animations, 'Run B L' );
   object.clips.RFL = THREE.AnimationClip.findByName( object.animations, 'Run F L' );
   object.clips.IDLE = THREE.AnimationClip.findByName( object.animations, 'Idle' );
+
+  object.currentAnimation = "RF";
 
   // Physics
   var shape = new CANNON.Sphere(0.3);

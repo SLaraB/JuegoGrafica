@@ -9,7 +9,7 @@ var texturesList = [];
 var soundsList = [];
 
 // Paths de modelos
-const modelsPathList = ["characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb","characters/player.glb","weapons/G36C.glb"];
+const modelsPathList = ["characters/player.glb","weapons/G36C.glb"];
 
 // Paths de texturas
 const texturesPathList = ["weapons/gunFire.jpg","ground/whiteGround.jpg","weapons/bulletHole.png","stuff/woodenBox.jpg"];

@@ -178,6 +178,25 @@ $(function () {
       }
     });
 
+    socket.on("newUserLogged",function(msg)
+    {
+      loadNewPlayer(msg);
+    });
+
+    // Respuesta de login
+    socket.on("sendTransform",function(msg)
+    {
+      var ply = serverPlayers[msg.username];
+      ply.collider.position.set(msg.x,msg.y,msg.z);
+      ply.rotation.set(msg.qx,msg.qy,msg.qz);
+      if(ply.currentAnimation != msg.anim)
+      {
+        ply.mixer.stopAllAction();
+        ply.currentAnimation = msg.anim;
+        ply.mixer.clipAction( ply.clips[msg.anim] ).play();
+      }
+    });
+
   });
 
 // Asigna el nombre de usuario

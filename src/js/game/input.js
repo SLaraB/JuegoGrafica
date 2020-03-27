@@ -3,11 +3,7 @@ var keysReleased = true;
 function onKeyDown(event)
 {
     if(gameState != "playing") return;
-    if(keysReleased)
-    {
-      player.mixer.stopAllAction();
-      keysReleased = false;
-    }
+
     switch (event.which)
     {
       case 87: // W
@@ -34,8 +30,7 @@ function onKeyDown(event)
 function onKeyUp(event)
 {
   if(gameState != "playing") return;
-    keysReleased = true;
-    player.mixer.stopAllAction();
+
     switch (event.which)
     {
       case 87: // W
@@ -69,7 +64,7 @@ function inputEvents()
   player.getWorldDirection(dir);
   if(input.keys.up && input.keys.right)
   {
-    player.mixer.clipAction( player.clips.RFR ).play();
+    player.currentAnimation = "RFR";
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/4);
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
@@ -77,7 +72,7 @@ function inputEvents()
   }
   else if(input.keys.down && input.keys.left)
   {
-    player.mixer.clipAction( player.clips.RBL ).play();
+    player.currentAnimation = "RBL";
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/4);
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
@@ -85,7 +80,7 @@ function inputEvents()
   }
   else if(input.keys.up && input.keys.left)
   {
-    player.mixer.clipAction( player.clips.RFL ).play();
+    player.currentAnimation = "RFL";
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
@@ -93,7 +88,7 @@ function inputEvents()
   }
   else if(input.keys.down && input.keys.right)
   {
-    player.mixer.clipAction( player.clips.RBR ).play();
+    player.currentAnimation = "RBR";
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
@@ -101,21 +96,21 @@ function inputEvents()
   }
   else if(input.keys.up)
   {
-    player.mixer.clipAction( player.clips.RF ).play();
+    player.currentAnimation = "RF";
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
     player.walking = true;
   }
   else if(input.keys.down)
   {
-    player.mixer.clipAction( player.clips.RB ).play();
+    player.currentAnimation = "RB";
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
     player.walking = true;
   }
   else if(input.keys.right)
   {
-    player.mixer.clipAction( player.clips.RR ).play();
+    player.currentAnimation = "RR";
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/2);
     player.collider.velocity.z = dir.z*runSpeed;
     player.collider.velocity.x = dir.x*runSpeed;
@@ -123,7 +118,7 @@ function inputEvents()
   }
   else if(input.keys.left)
   {
-    player.mixer.clipAction( player.clips.RL ).play();
+    player.currentAnimation = "RL";
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/2);
     player.collider.velocity.z = -dir.z*runSpeed;
     player.collider.velocity.x = -dir.x*runSpeed;
@@ -131,11 +126,19 @@ function inputEvents()
   }
   else
   {
-    player.mixer.clipAction( player.clips.IDLE ).play();
+    player.currentAnimation = "IDLE";
     player.collider.velocity.z = 0;
     player.collider.velocity.x = 0;
     player.walking = false;
   }
+
+  if(player.currentAnimation != player.prevAnimation)
+  {
+    player.mixer.stopAllAction();
+    player.prevAnimation = player.currentAnimation;
+    player.mixer.clipAction( player.clips[player.currentAnimation] ).play();
+  }
+
 }
 
 var v1 = new THREE.Vector3(); // create once and reuse it

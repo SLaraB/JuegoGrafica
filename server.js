@@ -161,6 +161,26 @@ io.on('connection', function(socket)
     socket.emit('loginResponse',{status:false,msg:"Contraseña incorrecta."});
   });
 
+  socket.on("sendTransform",function(msg)
+  {
+    if(!socket.hasOwnProperty("currentServer")) return;
+    if(!socket.currentServer.hasOwnProperty("users")) return;
+    socket.currentServer.users.forEach((item, i) => {
+      if(item.username != socket.username)
+        item.emit("sendTransform",{
+          username:socket.username,
+          anim:msg.anim,
+          x:msg.x,
+          y:msg.y,
+          z:msg.z,
+          qx:msg.qx,
+          qy:msg.qy,
+          qz:msg.qz
+        });
+    });
+
+  });
+
   socket.on('disconnect', function()
   {
     if(socket.hasOwnProperty("currentServer"))
