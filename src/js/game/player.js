@@ -32,8 +32,9 @@ function createPlayer(team,status)
   // Se rota el modelo en 180º
   object.model.rotateY(Math.PI);
 
-  //
+  // Indicador
   object.walking = false;
+
 
   // Animador
   object.mixer = new THREE.AnimationMixer( object.model );
@@ -57,6 +58,7 @@ function createPlayer(team,status)
   var shape = new CANNON.Sphere(0.3);
   object.collider = new CANNON.Body({ mass: 1 });
   object.collider.angularDamping = 1;
+  object.collider.owner = "player";
   object.collider.addShape(shape, new CANNON.Vec3( 0, 0, 0));
   object.collider.addShape(shape, new CANNON.Vec3( 0, 0.6, 0));
   object.collider.addShape(shape, new CANNON.Vec3( 0, 1.2, 0));
@@ -85,7 +87,6 @@ function createPlayer(team,status)
   object.audioListener = new THREE.AudioListener();
   object.camera.add( object.audioListener );
 
-
   // Mira
   object.aim = new THREE.Object3D();
   object.camera.attach(object.aim);
@@ -104,18 +105,33 @@ function createPlayer(team,status)
     var cPos = object.camera.getWorldPosition();
     var aPos = object.aim.getWorldPosition();
 
-    // instantiate audio object
-    var shootSound = new THREE.Audio( object.audioListener );
-    shootSound.setBuffer(soundsList[0]);
-    shootSound.detune = (Math.random()*700)-350;
-    //shootSound.play();
+    if(settings.sound)
+    {
+      // instantiate audio object
+      var shootSound = new THREE.Audio( object.audioListener );
+      shootSound.setBuffer(soundsList[0]);
+      shootSound.detune = (Math.random()*700)-350;
+      shootSound.play();
+    }
 
+
+    socket.emit("sendShoot",{cx:cPos.x,cy:cPos.y,cz:cPos.z,ax:aPos.x,ay:aPos.y,az:aPos.z});
+
+    // Obtiene hit point desde la camara
     if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(cPos.x,cPos.y,cPos.z),to:new CANNON.Vec3(aPos.x,aPos.y,aPos.z)}))
     {
-
+      var gunPos = object.gunFireParticle.getWorldPosition();
       var hitPos = object.ray.result.hitPointWorld;
-      var hitNormal = object.ray.result.hitNormalWorld;
-      createBulletHole(hitPos.x,hitPos.y,hitPos.z,hitNormal.x,hitNormal.y,hitNormal.z,player.ray.result.body);
+      var hitPosExtended = new CANNON.Vec3(hitPos.x + hitPos.x - gunPos.x,hitPos.y + hitPos.y - gunPos.y,hitPos.z + hitPos.z - gunPos.z);
+
+      // Obtiene hit point desde el arma
+      if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(gunPos.x,gunPos.y,gunPos.z),to:hitPosExtended}))
+      {
+        hitPos = object.ray.result.hitPointWorld;
+        hitNormal = object.ray.result.hitNormalWorld;
+
+        createBulletHole(hitPos.x,hitPos.y,hitPos.z,hitNormal.x,hitNormal.y,hitNormal.z,object.ray.result.body,gunPos);
+      }
     }
     setTimeout(function(){ object.gunFireParticle.visible = false; }, 50);
   }
@@ -144,13 +160,15 @@ function createPlayer(team,status)
 
   object.walkSoundLoop = function()
   {
+    if(!settings.sound)return;
+
     if(object.walking)
     {
       // instantiate audio object
       var stepSound = new THREE.Audio( object.audioListener );
       stepSound.setBuffer(soundsList[1]);
       stepSound.detune = (Math.random()*700)-350;
-      //stepSound.play();
+      stepSound.play();
     }
     setTimeout(object.walkSoundLoop, 325);
   }
@@ -169,7 +187,7 @@ function createGunFireParticle()
 }
 
 // Impacto de bala
-function createBulletHole(x,y,z,nx,ny,nz,body)
+function createBulletHole(x,y,z,nx,ny,nz,body,from)
 {
   var parent = new THREE.Object3D();
   parent.position.copy(body.position);
@@ -191,9 +209,8 @@ function createBulletHole(x,y,z,nx,ny,nz,body)
 
   // Add an impulse to the center
   var worldPoint = new CANNON.Vec3(x,y,z);
-  var g = player.gunFireParticle.getWorldPosition();
 
-  var impulse = new CANNON.Vec3(x-g.x,y-g.y,z-g.z);
+  var impulse = new CANNON.Vec3(x-from.x,y-from.y,z-from.z);
   impulse.normalize();
   impulse = impulse.scale(2);
   parent.body.applyImpulse(impulse,worldPoint);

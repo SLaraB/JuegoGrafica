@@ -4,6 +4,45 @@
  * A collection of useful math and object helpers
  */
 
+ function makeTextSprite( message , textColor)
+    {
+				textColor.r*=1.4;
+				textColor.g*=1.4;
+				textColor.b*=1.4;
+
+        var fontface = "verdana";
+        var fontsize = 60;
+
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+				canvas.width = 512;
+				canvas.height = 70;
+
+        context.font = "bold " + fontsize + "px " + fontface;
+        var metrics = context.measureText( message );
+
+				context.rect(0, 0, metrics.width, canvas.height);
+				context.clip();
+        context.fillStyle = "rgba("+textColor.r+", "+textColor.g+", "+textColor.b+", 1.0)";
+        context.fillText( message, 0, fontsize);
+
+				var c = document.createElement('canvas');
+				c.width = metrics.width;
+				c.height = canvas.height;
+			  var ctx = c.getContext("2d");
+			  var img = canvas;
+			  ctx.drawImage(img, 0, 0);
+
+
+        var texture = new THREE.Texture(c);
+        texture.needsUpdate = true;
+
+        var spriteMaterial = new THREE.SpriteMaterial( { map: texture } );
+        var sprite = new THREE.Sprite( spriteMaterial );
+        sprite.scale.set(metrics.width/700, canvas.height/700, 1);
+        return sprite;
+    }
+
 // Retorna un objeto de un arreglo segun su id
 function findObjectById(id,arr)
 {

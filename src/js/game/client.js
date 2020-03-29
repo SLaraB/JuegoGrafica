@@ -4,8 +4,14 @@ var socket;
 // Contenedor del canvas
 var gameWindow;
 
+// Contador de kills
+var killCounter, aKillCounter, bKillCounter;
+
 // Mira
 var crosshair;
+
+// Efecto de daño
+var damageScreen;
 
 // Loading bar
 var loadMenu,loadBar,loadInfo;
@@ -58,6 +64,9 @@ var showServersBtn;
 // Todos los menus
 var allMainMenus;
 
+// Contenedor de mensajes del servidor
+var serverMessages, messagesCont;
+
 // --------------------------
 
 var servers = [];
@@ -72,6 +81,12 @@ $(function () {
     // Game canvas
     gameWindow = $("#gameWindow");
     crosshair = $("#crosshair");
+    serverMessages = $("#serverMessages");
+    messagesCont = $("#serverMessages .container");
+    damageScreen = $("#damageScreen");
+    killCounter = $("#killCounter");
+    aKillCounter = $("#killCounter .a .count");
+    bKillCounter = $("#killCounter .b .count");
 
     // Obtiene los elementos del DOM
     mainMenu = $("#mainMenu");
@@ -180,6 +195,10 @@ $(function () {
 
     socket.on("newUserLogged",function(msg)
     {
+      if(msg.team == player.team)
+        messagesCont.append("<div><b>"+htmlEntities(msg.username)+"</b> ha ingresado al equipo <b class='A'>Allies</b>.</div>");
+      else
+        messagesCont.append("<div><b>"+htmlEntities(msg.username)+"</b> ha ingresado al equipo <b class='B'>Enemies</b>.</div>");
       loadNewPlayer(msg);
     });
 
@@ -187,6 +206,7 @@ $(function () {
     socket.on("sendTransform",function(msg)
     {
       var ply = serverPlayers[msg.username];
+      if(ply == undefined)return;
       ply.targetPosition = new CANNON.Vec3(msg.x,msg.y,msg.z);
       ply.rotation.set(msg.qx,msg.qy,msg.qz);
       if(ply.currentAnimation != msg.anim)
@@ -196,6 +216,28 @@ $(function () {
         ply.mixer.clipAction( ply.clips[msg.anim] ).play();
       }
     });
+
+    // Respuesta de login
+    socket.on("sendShoot",function(msg)
+    {
+      var ply = serverPlayers[msg.username];
+      if(ply == undefined)return;
+      ply.shoot(msg);
+
+    });
+
+    // Respuesta de login
+    socket.on("userDisconnected",function(msg)
+    {
+      messagesCont.append("<div><b>"+htmlEntities(msg)+"</b> se ha desconectado.</div>");
+      var ply = serverPlayers[msg];
+      scene.remove(ply);
+      physics.remove(ply.collider);
+      delete ply;
+
+    });
+
+
 
   });
 

@@ -36,6 +36,17 @@ function createServerPlayer(username,status,team,human,gun)
 
   //
   object.walking = true;
+
+  if(team == player.team)
+    object.usernameText = makeTextSprite( username ,{r:122,g:201,b:67,a:1});
+  else
+    object.usernameText = makeTextSprite( username ,{r:248,g:37,b:37,a:1});
+
+  object.usernameText.baseSize = new THREE.Vector3(object.usernameText.scale.x,object.usernameText.scale.y,1);
+  object.usernameText.position.set(object.position.x,object.position.y+2,object.position.z);
+
+  object.add(object.usernameText);
+
   object.targetPosition = new CANNON.Vec3(0,0,0);
 
   // Animador
@@ -63,33 +74,48 @@ function createServerPlayer(username,status,team,human,gun)
   object.collider.addShape(shape, new CANNON.Vec3( 0, 0.6, 0));
   object.collider.addShape(shape, new CANNON.Vec3( 0, 1.2, 0));
 
+  // Camera RayCast
+  object.ray = new CANNON.Ray();
 
-  /*
-  object.shoot = function()
+
+  object.shoot = function(msg)
   {
     object.gunFireParticle.visible = true;
-    var cPos = object.camera.getWorldPosition();
-    var aPos = object.aim.getWorldPosition();
 
     // instantiate audio object
+    /*
     var shootSound = new THREE.Audio( object.audioListener );
     shootSound.setBuffer(soundsList[0]);
     shootSound.detune = (Math.random()*700)-350;
+    */
     //shootSound.play();
 
-    if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(cPos.x,cPos.y,cPos.z),to:new CANNON.Vec3(aPos.x,aPos.y,aPos.z)}))
+    if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(msg.cx,msg.cy,msg.cz),to:new CANNON.Vec3(msg.ax,msg.ay,msg.az)}))
     {
-
+      // Si acierta al jugador principal
+      if(object.ray.result.body.hasOwnProperty("owner"))
+      {
+        damageScreen.addClass("active").show();
+        setTimeout(function(){ damageScreen.removeClass("active").hide();}, 200);
+      }
       var hitPos = object.ray.result.hitPointWorld;
       var hitNormal = object.ray.result.hitNormalWorld;
-      createBulletHole(hitPos.x,hitPos.y,hitPos.z,hitNormal.x,hitNormal.y,hitNormal.z,player.ray.result.body);
+      createBulletHole(hitPos.x,hitPos.y,hitPos.z,hitNormal.x,hitNormal.y,hitNormal.z,object.ray.result.body,new CANNON.Vec3(msg.cx,msg.cy,msg.cz));
     }
     setTimeout(function(){ object.gunFireParticle.visible = false; }, 50);
   }
-  */
+
   // Se debe llamar en cada iteración
   object.updatePlayer = function()
   {
+    var textDist = object.getWorldPosition().distanceTo( player.camera.getWorldPosition());
+    if(textDist >= 5 && textDist <= 10)
+      object.usernameText.scale.copy(object.usernameText.baseSize.clone().multiplyScalar(textDist/3.5));
+    else if(textDist < 5)
+      object.usernameText.scale.copy(object.usernameText.baseSize.clone().multiplyScalar(5/3.5));
+    else if(textDist > 10)
+      object.usernameText.scale.copy(object.usernameText.baseSize.clone().multiplyScalar(10/3.5));
+
     object.collider.position.lerp(object.targetPosition,0.5,object.collider.position);
     // Copia coordenadas de Cannon.js a Three.js
     object.position.copy(object.collider.position);

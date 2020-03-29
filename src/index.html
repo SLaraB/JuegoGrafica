@@ -51,8 +51,27 @@
 	<body onresize="resizeScreen()">
 
 		<!-- Container de WebGL -->
+		<div id="killCounter">
+			<div class="title">SCORE</div>
+			<div class="teams">
+
+				<div class="a">
+					<div class="team A">Allies</div>
+					<div class="count">0</div>
+				</div>
+
+				<div class="b">
+					<div class="team B">Enemies</div>
+					<div class="count">0</div>
+				</div>
+
+			</div>
+		</div>
 		<div id="gameWindow"></div>
 		<img id="crosshair" src="textures/UI/crosshair.png">
+		<div id="damageScreen"></div>
+
+		<div id="serverMessages"><div class="container"></div></div>
 
 		<div id="mainMenu">
 

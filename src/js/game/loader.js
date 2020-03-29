@@ -2,11 +2,13 @@
 const modelsPath = "models/";
 const texturesPath = "textures/";
 const soundsPath = "sounds/";
+const fontsPath = "fonts/";
 
 // Almacena los datos cargados
 var modelsList = [];
 var texturesList = [];
 var soundsList = [];
+var fontsList = [];
 
 // Paths de modelos
 const modelsPathList = ["characters/player.glb","weapons/G36C.glb"];
@@ -16,6 +18,9 @@ const texturesPathList = ["weapons/gunFire.jpg","ground/whiteGround.jpg","weapon
 
 // Paths de sonidos
 const soundsPathList = ["FX/Shoot.mp3","FX/Step.mp3"];
+
+// Paths de fuentes de texto
+const fontsPathList = ["gameFont.json"];
 
 // Activa el cache
 THREE.Cache.enabled = true;
@@ -28,6 +33,9 @@ const textureLoader = new THREE.TextureLoader();
 
 // Lector de archivos de audio
 const soundLoader = new THREE.AudioLoader();
+
+// Lector de fuentes
+const fontLoader = new THREE.FontLoader();
 
 // Carga los modelos .glb
 function loadModels()
@@ -104,13 +112,42 @@ function loadSounds()
     {
       soundsList.push(sound);
       if(soundsList.length == soundsPathList.length)
+        loadFonts();
+      else
+        loadSounds();
+    },
+    function (x)
+    {
+
+    },
+  	function ( error )
+    {
+      console.log(error);
+  	}
+  );
+}
+// Carga los archivos de audio
+function loadFonts()
+{
+  loadBarPercent();
+  var url = fontsPathList[fontsList.length];
+
+  loadInfo.html("Cargando fuente: " + url);
+
+  // Textura del suelo
+  fontLoader.load( fontsPath + url,
+
+    function ( font )
+    {
+      fontsList.push(font);
+      if(fontsList.length == fontsPathList.length)
       {
         loadMenu.hide();
         setUsernameInput.show();
         setUsernameBtn.show();
       }
       else
-        loadSounds();
+        loadFonts();
     },
     function (x)
     {
@@ -125,8 +162,8 @@ function loadSounds()
 
 function loadBarPercent()
 {
-  var allItems = modelsPathList.length + texturesPathList.length + soundsPathList.length;
-  var completed = modelsList.length + texturesList.length + soundsList.length;
+  var allItems = modelsPathList.length + texturesPathList.length + soundsPathList.length + fontsPathList.length;
+  var completed = modelsList.length + texturesList.length + soundsList.length + fontsList.length;
   var percent = (100*completed)/allItems;
   loadBar.css({width:percent+"%"});
 }

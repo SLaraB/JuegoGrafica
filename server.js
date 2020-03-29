@@ -153,7 +153,7 @@ io.on('connection', function(socket)
         servers[i].users.push(socket);
         socket.currentServer = servers[i];
 
-        socket.emit('loginResponse',{status:true,team:socket.team,users:users});
+        socket.emit('loginResponse',{status:true,team:socket.team,users:users,teamAkills:servers[i].teamAKills,teamBkills:servers[i].teamBKills});
         return;
       }
     }
@@ -178,6 +178,16 @@ io.on('connection', function(socket)
           qz:msg.qz
         });
     });
+  });
+
+  socket.on("sendShoot",function(msg)
+  {
+    msg.username = socket.username;
+    if(!socket.hasOwnProperty("currentServer"))return;
+    for(var i = 0; i<socket.currentServer.users.length; i++)
+      if(socket.currentServer.users[i].username != socket.username)
+        socket.currentServer.users[i].emit("sendShoot",msg);
+
 
   });
 

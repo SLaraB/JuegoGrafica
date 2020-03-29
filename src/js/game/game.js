@@ -41,6 +41,10 @@ var body;
 
 var box;
 
+var settings = {
+  sound:false
+}
+
 
 // Oculta y centra el puntero en pantalla
 var mouseLocker;
@@ -49,12 +53,18 @@ var mouseLocker;
 // Justa el tamaño del canvas
 function resizeScreen()
 {
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  if(gameState == "playing")
+    renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 // Inicializa los componentes del juego
 function init(msg)
 {
+  gameState = "playing";
+
+  // Muestra la ventana de mensajes
+  serverMessages.show();
+  killCounter.show();
 
   // Textura del suelo
   groundTexture = texturesList[1];
@@ -73,7 +83,7 @@ function init(msg)
   } );
 
   // Ventana de visualización
-  renderer = new THREE.WebGLRenderer({antialias:false});
+  renderer = new THREE.WebGLRenderer({antialias:true});
 
   // Color para borrar cada frame
   renderer.setClearColor("#070B34");
