@@ -7,6 +7,14 @@ html, body
   padding:0;
   overflow:hidden;
 }
+.unselec
+{
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
 input
 {
   padding:5px;
@@ -38,9 +46,86 @@ input
   color:white;
   text-align: center;
 }
-#killCounter
+#gameUI
 {
   display:none;
+  position:absolute;
+  width:100vw;
+  height:100vh;
+  z-index: 10;
+}
+#healthBar
+{
+  position:absolute;
+  bottom:10px;
+  right:10px;
+}
+#healthBar img
+{
+  position: relative;
+  z-index: 11;
+  width:64px;
+  height:64px;
+}
+#healthBar .barContainer
+{
+  background: #222;
+  z-index: 9;
+  position: absolute;
+  bottom:64px;
+  left:22px;
+  width:20px;
+  height:200px;
+  border-radius: 8px 8px 0px 0px;
+}
+#healthBar .bar
+{
+  background: green;
+  z-index: 9;
+  position: absolute;
+  bottom:0px;
+  left:4px;
+  width:12px;
+  height:calc(100% - 4px);
+  border-radius: 4px 4px 0px 0px;
+}
+#ammoBar
+{
+  position:absolute;
+  bottom:10px;
+  right:94px;
+}
+#ammoBar img
+{
+  position: relative;
+  z-index: 11;
+  width:64px;
+  height:64px;
+}
+#ammoBar .barContainer
+{
+  background: #222;
+  z-index: 9;
+  position: absolute;
+  bottom:64px;
+  left:22px;
+  width:20px;
+  height:200px;
+  border-radius: 8px 8px 0px 0px;
+}
+#ammoBar .bar
+{
+  background: green;
+  z-index: 9;
+  position: absolute;
+  bottom:0px;
+  left:4px;
+  width:12px;
+  height:calc(100% - 4px);
+  border-radius: 4px 4px 0px 0px;
+}
+#killCounter
+{
   text-align: center;
   font-weight: bold;
   font-size: 12px;
@@ -49,16 +134,17 @@ input
   position:fixed;
   top:0;
   left:calc(50vw - 75px);
-  background:rgba(255,255,255,0.5);
+  background:#222;
   border-radius: 0px 0px 5px 5px;
-  border:1px solid #666;
+  border:1px solid #000;
   border-top: none;
+  color:white;
 }
 #killCounter .title
 {
   padding-top: 4px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #666;
+  border-bottom: 1px solid #000;
 }
 #killCounter .teams
 {
@@ -67,7 +153,7 @@ input
 #killCounter .teams .a
 {
   width:74px;
-  border-right:1px solid #666;
+  border-right:1px solid #000;
 }
 #killCounter .teams .b
 {
@@ -120,7 +206,6 @@ input
   color:white;
   font-size:14px;
   padding:10px;
-  display:none;
   position:fixed;
   vertical-align: bottom;
   bottom:0;

@@ -7,6 +7,9 @@ function createPlayer(team,status)
   object.team = team;
   object.status = status;
 
+  // Si está tocando el suelo
+  object.grounded = false;
+
   // Se le asigna el modelo importado
   var model = modelsList[0];
   object.model = model.scene.children[0];
@@ -14,14 +17,29 @@ function createPlayer(team,status)
   object.attach(object.model);
   object.model.children[1].castShadow = true;
 
+  // Obtiene el material
+  object.material = object.model.children[1].material;
+  object.material.transparent = true;
+  object.materialFadeOut = false;
+
   // Le asigna el arma al brazo
   var weapon = modelsList[1];
   object.weapon = weapon.scene;
+  object.weapon.children[0].castShadow = true;
   object.weapon.scale.set(0.1,0.1,0.1);
   var rightHandBone = object.getObjectByName("mixamorigRightHand");
+  object.spine = object.getObjectByName("mixamorigSpine");
+  object.head = object.getObjectByName("mixamorigHead");
+  object.spinePos = new THREE.Vector3(0,0,0);
+  object.headPos = new THREE.Vector3(0,0,0);
   rightHandBone.attach(object.weapon);
-  object.weapon.position.set(0,0.27,0);
-  object.weapon.rotateY(-0.03);
+  object.weapon.position.set(-0.08,0.36,-0.02);
+
+
+  // Obtiene el material
+  object.weaponMaterial = object.weapon.children[0].material;
+  object.weaponMaterial.transparent = true;
+  object.materialFadeOut = false;
 
   // Gun Fire Particle
   object.gunFireParticle = createGunFireParticle();
@@ -35,6 +53,8 @@ function createPlayer(team,status)
   // Indicador
   object.walking = false;
 
+  object.ammo = 100;
+  object.ammoLocked = false;
 
   // Animador
   object.mixer = new THREE.AnimationMixer( object.model );
@@ -50,18 +70,33 @@ function createPlayer(team,status)
   object.clips.RBL = THREE.AnimationClip.findByName( object.animations, 'Run B L' );
   object.clips.RFL = THREE.AnimationClip.findByName( object.animations, 'Run F L' );
   object.clips.IDLE = THREE.AnimationClip.findByName( object.animations, 'Idle' );
+  object.clips.CIDLE = THREE.AnimationClip.findByName( object.animations, 'Crouch Idle' );
+  object.clips.DIE = THREE.AnimationClip.findByName( object.animations, 'Die' );
+  object.clips.JUMP = THREE.AnimationClip.findByName( object.animations, 'Jump' );
+  object.clips.FALLING = THREE.AnimationClip.findByName( object.animations, 'Falling' );
+  object.clips.CF = THREE.AnimationClip.findByName( object.animations, 'Crouch F' );
+  object.clips.CR = THREE.AnimationClip.findByName( object.animations, 'Crouch R' );
+  object.clips.CB = THREE.AnimationClip.findByName( object.animations, 'Crouch B' );
+  object.clips.CL = THREE.AnimationClip.findByName( object.animations, 'Crouch L' );
+  object.clips.CFL = THREE.AnimationClip.findByName( object.animations, 'Crouch F L' );
+  object.clips.CFR = THREE.AnimationClip.findByName( object.animations, 'Crouch F R' );
+  object.clips.CBL = THREE.AnimationClip.findByName( object.animations, 'Crouch B L' );
+  object.clips.CBR = THREE.AnimationClip.findByName( object.animations, 'Crouch B R' );
 
   object.currentAnimation = "IDLE";
   object.prevAnimation = "none";
 
   // Physics
-  var shape = new CANNON.Sphere(0.3);
+  var legsShape = new CANNON.Sphere(0.3);
+  var headShape = new CANNON.Sphere(0.15);
+  var bodyShape = new CANNON.Box(new CANNON.Vec3(0.2,0.43,0.2));
   object.collider = new CANNON.Body({ mass: 1 });
   object.collider.angularDamping = 1;
   object.collider.owner = "player";
-  object.collider.addShape(shape, new CANNON.Vec3( 0, 0, 0));
-  object.collider.addShape(shape, new CANNON.Vec3( 0, 0.6, 0));
-  object.collider.addShape(shape, new CANNON.Vec3( 0, 1.2, 0));
+  object.collider.class = "player";
+  object.collider.addShape(legsShape, new CANNON.Vec3( 0, 0, 0));
+  object.collider.addShape(bodyShape, new CANNON.Vec3( 0, 0.6, 0));
+  object.collider.addShape(headShape, new CANNON.Vec3( 0, 1.2, 0));
 
 
   // Cámara
@@ -94,16 +129,67 @@ function createPlayer(team,status)
 
   // Camera RayCast
   object.ray = new CANNON.Ray();
+  object.rayRes = new CANNON.RaycastResult();
 
 
   // Se añade el eje al jugador
   object.attach(object.cameraRotator);
+  object.health = 100;
+  object.pos = new THREE.Vector3(0,0,0);
+  object.gunPos = new THREE.Vector3(0,0,0);
+  object.camPos = new THREE.Vector3(0,0,0);
+  object.aimPos = new THREE.Vector3(0,0,0);
+
+  object.getPos = function()
+  {
+    object.getWorldPosition(object.pos);
+    return object.pos;
+  }
+
+  object.setHealth = function(value,username)
+  {
+    object.health = value;
+
+    healthBar.css({"height":"calc("+value+"% - 4px)"});
+
+    if(value > 20)
+    {
+      healthBar.css({"background":"green"});
+    }
+    else {
+      healthBar.css({"background":"red"});
+    }
+
+    if(value <= 0)
+    {
+      socket.emit("userKilled",{userKilled:object.username,killedBy:username});
+      object.mixer.stopAllAction();
+      var anim = object.mixer.clipAction( player.clips.DIE );
+      anim.setLoop( THREE.LoopOnce );
+      anim.clampWhenFinished = true;
+      anim.play();
+      setTimeout(function()
+      {
+        object.model.children[1].castShadow = false;
+        object.weapon.children[0].castShadow = false;
+        player.materialFadeOut = true;
+      }, 3000);
+      gameState = "dead";
+    }
+
+  }
 
   object.shoot = function()
   {
+    if(object.ammoLocked || gameState != "playing") return;
+
+    object.ammo -= 15;
     object.gunFireParticle.visible = true;
-    var cPos = object.camera.getWorldPosition();
-    var aPos = object.aim.getWorldPosition();
+    object.camera.getWorldPosition(object.camPos);
+    object.aim.getWorldPosition(object.aimPos);
+
+    var cPos = object.camPos;
+    var aPos = object.aimPos;
 
     if(settings.sound)
     {
@@ -120,7 +206,8 @@ function createPlayer(team,status)
     // Obtiene hit point desde la camara
     if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(cPos.x,cPos.y,cPos.z),to:new CANNON.Vec3(aPos.x,aPos.y,aPos.z)}))
     {
-      var gunPos = object.gunFireParticle.getWorldPosition();
+      object.gunFireParticle.getWorldPosition(object.gunPos);
+      var gunPos = object.gunPos;
       var hitPos = object.ray.result.hitPointWorld;
       var hitPosExtended = new CANNON.Vec3(hitPos.x + hitPos.x - gunPos.x,hitPos.y + hitPos.y - gunPos.y,hitPos.z + hitPos.z - gunPos.z);
 
@@ -139,13 +226,85 @@ function createPlayer(team,status)
   // Se debe llamar en cada iteración
   object.updatePlayer = function()
   {
+
+    // Actualiza la munición
+    if(object.ammo <= 0 && !object.ammoLocked)
+    {
+      object.ammo = 0;
+      object.ammoLocked = true;
+      ammoBar.css({"background":"red"});
+    }
+
+    if(object.ammo < 100)
+    {
+      object.ammo += 0.5;
+
+      if(object.ammo >= 100 && object.ammoLocked)
+      {
+        object.ammo = 100;
+        object.ammoLocked = false;
+        ammoBar.css({"background":"green"});
+      }
+
+      ammoBar.css({"height":"calc("+object.ammo+"% - 4px)"});
+    }
+
+
     // Copia coordenadas de Cannon.js a Three.js
     object.position.copy(object.collider.position);
     object.position.y -= 0.3;
 
+    // Actualiza collider cabeza
+    object.head.getWorldPosition(object.headPos);
+    object.collider.shapeOffsets[2].set(
+      object.headPos.x - object.collider.position.x,
+      object.headPos.y - object.collider.position.y + 0.1,
+      object.headPos.z - object.collider.position.z
+    )
+
+    // Actualiza el collider cuerpo
+    object.spine.getWorldPosition(object.spinePos);
+    object.collider.shapeOffsets[1].set(
+      object.spinePos.x - object.collider.position.x,
+      object.spinePos.y - object.collider.position.y,
+      object.spinePos.z - object.collider.position.z
+    )
+
+    // Fadeout de material al morir
+    if(object.materialFadeOut && object.material.opacity > 0)
+    {
+      object.material.opacity-=0.01;
+      object.weaponMaterial.opacity-=0.01;
+    }
+
+    // Detecta el suelo
+    object.ray.from = new CANNON.Vec3(
+      object.collider.position.x,
+      object.collider.position.y + 0.5,
+      object.collider.position.z
+    );
+
+    object.ray.to = new CANNON.Vec3(
+      object.collider.position.x,
+      object.collider.position.y - 0.4,
+      object.collider.position.z
+    );
+    object.rayRes.reset();
+    object.ray.intersectBodies(groundColliders,object.rayRes);
+
+    if(object.rayRes.hasHit)
+    {
+      object.grounded = true;
+    }
+    else
+    {
+      object.grounded = false;
+    }
+
     // Actualiza las animaciones
     object.mixer.update( timeStep );
 
+    // Envía la posicion y rotación al servidor
     socket.emit("sendTransform",{
       anim:object.currentAnimation,
       x:object.collider.position.x,
@@ -189,6 +348,7 @@ function createGunFireParticle()
 // Impacto de bala
 function createBulletHole(x,y,z,nx,ny,nz,body,from)
 {
+  if(body.hasOwnProperty("class"))return;
   var parent = new THREE.Object3D();
   parent.position.copy(body.position);
   parent.quaternion.copy(body.quaternion);

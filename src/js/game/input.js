@@ -59,10 +59,89 @@ document.addEventListener("keyup", onKeyUp, false);
 
 var dir = new THREE.Vector3(0,0,0);
 var runSpeed = 10;
+var crouchSpeed = 6;
 function inputEvents()
 {
   player.getWorldDirection(dir);
-  if(input.keys.up && input.keys.right)
+
+  if (player.grounded)
+    runSpeed = 10;
+  else
+    runSpeed = 8;
+
+  if(gameState == "dead")
+  {
+    player.currentAnimation = "DIE";
+    player.collider.velocity.z = 0;
+    player.collider.velocity.x = 0;
+    player.walking = false;
+  }
+  else if(input.keys.up && input.keys.right && input.keys.shift)
+  {
+    player.currentAnimation = "CFR";
+    dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/4);
+    player.collider.velocity.z = -dir.z*crouchSpeed;
+    player.collider.velocity.x = -dir.x*crouchSpeed;
+    player.walking = true;
+  }
+  else if(input.keys.down && input.keys.left && input.keys.shift)
+  {
+    player.currentAnimation = "CBL";
+    dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/4);
+    player.collider.velocity.z = dir.z*crouchSpeed;
+    player.collider.velocity.x = dir.x*crouchSpeed;
+    player.walking = true;
+  }
+  else if(input.keys.up && input.keys.left && input.keys.shift)
+  {
+    player.currentAnimation = "CFL";
+    dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);
+    player.collider.velocity.z = -dir.z*crouchSpeed;
+    player.collider.velocity.x = -dir.x*crouchSpeed;
+    player.walking = true;
+  }
+  else if(input.keys.down && input.keys.right && input.keys.shift)
+  {
+    player.currentAnimation = "CBR";
+    dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);
+    player.collider.velocity.z = dir.z*crouchSpeed;
+    player.collider.velocity.x = dir.x*crouchSpeed;
+    player.walking = true;
+  }
+  else if(input.keys.up && input.keys.shift)
+  {
+    player.currentAnimation = "CF";
+    player.collider.velocity.z = -dir.z*crouchSpeed;
+    player.collider.velocity.x = -dir.x*crouchSpeed;
+    player.walking = true;
+  }
+  else if(input.keys.down && input.keys.shift)
+  {
+    player.currentAnimation = "CB";
+    player.collider.velocity.z = dir.z*crouchSpeed;
+    player.collider.velocity.x = dir.x*crouchSpeed;
+    player.walking = true;
+  }
+  else if(input.keys.right && input.keys.shift)
+  {
+    player.currentAnimation = "CR";
+    dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/2);
+    player.collider.velocity.z = dir.z*crouchSpeed;
+    player.collider.velocity.x = dir.x*crouchSpeed;
+    player.walking = true;
+  }
+  else if(input.keys.left && input.keys.shift)
+  {
+    player.currentAnimation = "CL";
+    dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/2);
+    player.collider.velocity.z = -dir.z*crouchSpeed;
+    player.collider.velocity.x = -dir.x*crouchSpeed;
+    player.walking = true;
+  }
+
+
+
+  else if(input.keys.up && input.keys.right)
   {
     player.currentAnimation = "RFR";
     dir = dir.applyAxisAngle(new THREE.Vector3(0,1,0),-Math.PI/4);
@@ -124,6 +203,13 @@ function inputEvents()
     player.collider.velocity.x = -dir.x*runSpeed;
     player.walking = true;
   }
+  else if(input.keys.shift)
+  {
+    player.currentAnimation = "CIDLE";
+    player.collider.velocity.z = 0;
+    player.collider.velocity.x = 0;
+    player.walking = false;
+  }
   else
   {
     player.currentAnimation = "IDLE";
@@ -131,8 +217,16 @@ function inputEvents()
     player.collider.velocity.x = 0;
     player.walking = false;
   }
+  if (!player.grounded && gameState != "dead")
+  {
+    player.currentAnimation = "FALLING";
+  }
+  if (player.grounded && input.keys.space)
+  {
+    player.collider.velocity.y = 8;
+  }
 
-  if(player.currentAnimation != player.prevAnimation)
+  if(player.currentAnimation != player.prevAnimation && gameState != "dead")
   {
     player.mixer.stopAllAction();
     player.prevAnimation = player.currentAnimation;

@@ -19,6 +19,9 @@ var player;
 // Suelo
 var ground;
 
+// Colliders de tipo suelo
+var groundColliders = [];
+
 // Luz
 var light;
 
@@ -53,8 +56,13 @@ var mouseLocker;
 // Justa el tamaño del canvas
 function resizeScreen()
 {
-  if(gameState == "playing")
+  if(gameState != "loading")
+  {
+    player.camera.aspect = window.innerWidth / window.innerHeight;
+    player.camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
+  }
+
 }
 
 // Inicializa los componentes del juego
@@ -63,8 +71,11 @@ function init(msg)
   gameState = "playing";
 
   // Muestra la ventana de mensajes
-  serverMessages.show();
-  killCounter.show();
+  gameUI.show();
+
+  // Muestra los puntajes actuales
+  aKillCounter.html(msg.teamAKills);
+  bKillCounter.html(msg.teamBKills);
 
   // Textura del suelo
   groundTexture = texturesList[1];
@@ -83,17 +94,13 @@ function init(msg)
   } );
 
   // Ventana de visualización
-  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer = new THREE.WebGLRenderer({antialias:false});
 
   // Color para borrar cada frame
   renderer.setClearColor("#070B34");
 
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-
-
-  // Tamaño del render
-  resizeScreen();
 
   // Añade la ventana al DOM
   gameWindow.html( $(renderer.domElement) );
@@ -111,24 +118,20 @@ function init(msg)
 
   // Escena de physics
   physics = new CANNON.World();
-  physics.gravity.set(0,-9.82,0);
+  physics.gravity.set(0,-9.82*1.5,0);
   physics.broadphase = new CANNON.NaiveBroadphase(); // Algoritmo de collisión
   cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, physics );
 
   // Luz
   light = new THREE.DirectionalLight( 0xffffff, 7,100 );
-  light.position.set( 0.6, 1, 0 );
+  light.position.set( 500, 500, 0 );
   light.castShadow = true;
   //Set up shadow properties for the light
-  light.shadow.mapSize.width = 1024;  // default
-  light.shadow.mapSize.height = 1024; // default
+  light.shadow.mapSize.width = 2048;  // default
+  light.shadow.mapSize.height = 2048; // default
   light.shadow.camera.near = 0.5;    // default
   light.shadow.camera.far = 1000;     // default
-  const d = 15;
-  light.shadow.camera.left = d;
-  light.shadow.camera.right = -d;
-  light.shadow.camera.top = d;
-  light.shadow.camera.bottom = -d;
+
 
   var ambientLight = new THREE.AmbientLight( 0x666666,5 ); // soft white light
   scene.add( ambientLight );
@@ -138,13 +141,14 @@ function init(msg)
 
 
   // Suelo
-  ground = new THREE.Mesh(new THREE.PlaneGeometry( 30, 30), groundMaterial);
+  ground = new THREE.Mesh(new THREE.PlaneGeometry( 100, 100), groundMaterial);
   ground.position.y = -2;
   ground.lookAt(new THREE.Vector3(0,1,0));
-  ground.collider = new CANNON.Body({ mass: 0, shape: new CANNON.Box(new CANNON.Vec3(15, 15, 0.01))});
+  ground.collider = new CANNON.Body({mass: 0, shape: new CANNON.Box(new CANNON.Vec3(50, 50, 0.01))});
   ground.collider.position.y = -2;
   ground.collider.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
   ground.receiveShadow = true;
+  groundColliders.push(ground.collider);
 
 
   // Añade los elementos a la escena visual
@@ -176,8 +180,6 @@ function init(msg)
   physics.add(body);
   box.body = body;
 
-  // Cambia al estado "Jugando"
-  gameState = "playing";
 
   var imagePrefix = "textures/skyboxes/Sunny/";
   var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
@@ -202,7 +204,8 @@ function init(msg)
 
 
 
-
+  // Tamaño del render
+  resizeScreen();
 
 
   // Inicia el juego
@@ -242,11 +245,20 @@ var loop = function ()
 	updatePhysics();
   updateBulletHoles();
 
+
+  // Actualiza a los jugadores
   for(var key in serverPlayers)
   {
     serverPlayers[key].updatePlayer();
   }
 
+  var pPos = player.getPos();
+  var angle = (new THREE.Vector3(pPos.x,pPos.y,0)).angleTo ( light.position );
+  light.shadow.camera.top = 18 - pPos.x * Math.sin(angle);
+  light.shadow.camera.bottom = -18 - pPos.x * Math.sin(angle);
+  light.shadow.camera.left = -18 - pPos.z;
+  light.shadow.camera.right = 18 - pPos.z;
+  light.shadow.camera.updateProjectionMatrix();
 
 
   box.position.copy(box.body.position);

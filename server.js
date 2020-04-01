@@ -153,7 +153,7 @@ io.on('connection', function(socket)
         servers[i].users.push(socket);
         socket.currentServer = servers[i];
 
-        socket.emit('loginResponse',{status:true,team:socket.team,users:users,teamAkills:servers[i].teamAKills,teamBkills:servers[i].teamBKills});
+        socket.emit('loginResponse',{status:true,team:socket.team,users:users,teamAKills:servers[i].teamAKills,teamBKills:servers[i].teamBKills});
         return;
       }
     }
@@ -187,7 +187,38 @@ io.on('connection', function(socket)
     for(var i = 0; i<socket.currentServer.users.length; i++)
       if(socket.currentServer.users[i].username != socket.username)
         socket.currentServer.users[i].emit("sendShoot",msg);
+  });
 
+  socket.on("userKilled",function(msg)
+  {
+    if(!socket.hasOwnProperty("currentServer"))return;
+    if(socket.team == "A") socket.currentServer.teamBKills++;
+    if(socket.team == "B") socket.currentServer.teamAKills++;
+
+    // Si algun equipo alcanza los 20 kills
+    if(socket.currentServer.teamAKills >= 20 || socket.currentServer.teamBKills >= 20)
+    {
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        socket.currentServer.users[i].emit("gameOver",{teamAKills:socket.currentServer.teamAKills,teamBKills:socket.currentServer.teamBKills});
+      }
+      socket.currentServer.teamAKills = 0;
+      socket.currentServer.teamBKills = 0;
+    }
+    else
+    {
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        if(socket.currentServer.users[i].username != socket.username)
+        {
+          socket.currentServer.users[i].emit("userKilled",{
+            username:socket.username,
+            killedBy:msg.killedBy,
+            teamAKills:socket.currentServer.teamAKills,
+            teamBKills:socket.currentServer.teamBKills});
+        }
+      }
+    }
 
   });
 

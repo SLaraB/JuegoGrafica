@@ -4,6 +4,9 @@ var socket;
 // Contenedor del canvas
 var gameWindow;
 
+// Contenedor UI
+var gameUI, healthBar, ammoBar;
+
 // Contador de kills
 var killCounter, aKillCounter, bKillCounter;
 
@@ -80,6 +83,9 @@ $(function () {
 
     // Game canvas
     gameWindow = $("#gameWindow");
+    gameUI = $("#gameUI");
+    healthBar = $("#healthBar .bar");
+    ammoBar = $("#ammoBar .bar");
     crosshair = $("#crosshair");
     serverMessages = $("#serverMessages");
     messagesCont = $("#serverMessages .container");
@@ -223,6 +229,28 @@ $(function () {
       var ply = serverPlayers[msg.username];
       if(ply == undefined)return;
       ply.shoot(msg);
+
+    });
+
+    // Cuando muere un jugador
+    socket.on("userKilled",function(msg)
+    {
+      messagesCont.append("<div><b>"+htmlEntities(msg.username)+"</b> ha sido asesinado por <b>"+htmlEntities(msg.killedBy)+"</b>.</div>");
+      aKillCounter.html(msg.teamAKills);
+      bKillCounter.html(msg.teamBKills);
+      var ply = serverPlayers[msg.username];
+      ply.mixer.stopAllAction();
+      var anim = ply.mixer.clipAction( ply.clips.DIE );
+      physics.removeBody(ply.collider);
+      anim.setLoop( THREE.LoopOnce );
+      anim.clampWhenFinished = true;
+      anim.play();
+      setTimeout(function()
+      {
+        ply.model.children[1].castShadow = false;
+        ply.weapon.children[0].castShadow = false;
+        ply.materialFadeOut = true;
+      }, 3000);
 
     });
 
