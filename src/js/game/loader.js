@@ -2,25 +2,32 @@
 const modelsPath = "models/";
 const texturesPath = "textures/";
 const soundsPath = "sounds/";
-const fontsPath = "fonts/";
 
 // Almacena los datos cargados
 var modelsList = [];
 var texturesList = [];
 var soundsList = [];
-var fontsList = [];
 
 // Paths de modelos
 const modelsPathList = ["characters/player.glb","weapons/G36C.glb"];
 
 // Paths de texturas
-const texturesPathList = ["weapons/gunFire.jpg","ground/whiteGround.jpg","weapons/bulletHole.png","stuff/woodenBox.jpg"];
+const texturesPathList = [
+  "weapons/gunFire.jpg",
+  "ground/whiteGround.jpg",
+  "weapons/bulletHole.png",
+  "stuff/woodenBox.jpg",
+  "skyboxes/Sunny/xpos.jpg",
+  "skyboxes/Sunny/xneg.jpg",
+  "skyboxes/Sunny/ypos.jpg",
+  "skyboxes/Sunny/yneg.jpg",
+  "skyboxes/Sunny/zpos.jpg",
+  "skyboxes/Sunny/zneg.jpg"
+];
 
 // Paths de sonidos
 const soundsPathList = ["FX/Shoot.mp3","FX/Step.mp3"];
 
-// Paths de fuentes de texto
-const fontsPathList = ["gameFont.json"];
 
 // Activa el cache
 THREE.Cache.enabled = true;
@@ -34,32 +41,39 @@ const textureLoader = new THREE.TextureLoader();
 // Lector de archivos de audio
 const soundLoader = new THREE.AudioLoader();
 
-// Lector de fuentes
-const fontLoader = new THREE.FontLoader();
 
 // Carga los modelos .glb
 function loadModels()
 {
+  // Actualiza la barra de porcentaje
   loadBarPercent();
+
+  // Obtiene el URL del asset actual a cargar
   var url = modelsPathList[modelsList.length];
 
+  // Indica en pantalla que asset se está cargando
   loadInfo.html("Cargando modelo: " + url);
 
-  // Load a glTF resource
+  // Comienza la carga del asset
   modelLoader.load( modelsPath + url,
 
+    // Si el asset se carga exitósamente
   	function ( gltf )
     {
+      // Almacenta el asset
       modelsList.push(gltf);
+
+      // Si aún quedan assets por cargar
       if(modelsList.length == modelsPathList.length)
         loadTextures();
       else
         loadModels();
   	},
-    function (x)
-    {
 
-    },
+    // Retorna el procentaje de descarga
+    function (x){},
+
+    // Si ocurre un error
   	function ( error )
     {
       console.log(error);
@@ -70,26 +84,35 @@ function loadModels()
 // Carga las texturas
 function loadTextures()
 {
+  // Actualiza la barra de porcentaje
   loadBarPercent();
+
+  // Obtiene el URL del asset actual a cargar
   var url = texturesPathList[texturesList.length];
 
+  // Indica en pantalla que asset se está cargando
   loadInfo.html("Cargando textura: " + url);
 
-  // Textura del suelo
+  // Comienza la carga del asset
   textureLoader.load( texturesPath + url,
 
+    // Si el asset se carga exitósamente
     function ( texture )
     {
+      // Almacenta el asset
       texturesList.push(texture);
+
+      // Si aún quedan assets por cargar
       if(texturesList.length == texturesPathList.length)
         loadSounds();
       else
         loadTextures();
     },
-    function (x)
-    {
 
-    },
+    // Retorna el procentaje de descarga
+    function (x){},
+
+    // Si ocurre un error
   	function ( error )
     {
       console.log(error);
@@ -100,59 +123,40 @@ function loadTextures()
 // Carga los archivos de audio
 function loadSounds()
 {
+  // Actualiza la barra de porcentaje
   loadBarPercent();
+
+  // Obtiene el URL del asset actual a cargar
   var url = soundsPathList[soundsList.length];
 
+  // Indica en pantalla que asset se está cargando
   loadInfo.html("Cargando sonido: " + url);
 
-  // Textura del suelo
+  // Comienza la carga del asset
   soundLoader.load( soundsPath + url,
 
+    // Si el asset se carga exitósamente
     function ( sound )
     {
+      // Almacenta el asset
       soundsList.push(sound);
+
+      // Si aún quedan assets por cargar
       if(soundsList.length == soundsPathList.length)
-        loadFonts();
-      else
-        loadSounds();
-    },
-    function (x)
-    {
-
-    },
-  	function ( error )
-    {
-      console.log(error);
-  	}
-  );
-}
-// Carga los archivos de audio
-function loadFonts()
-{
-  loadBarPercent();
-  var url = fontsPathList[fontsList.length];
-
-  loadInfo.html("Cargando fuente: " + url);
-
-  // Textura del suelo
-  fontLoader.load( fontsPath + url,
-
-    function ( font )
-    {
-      fontsList.push(font);
-      if(fontsList.length == fontsPathList.length)
       {
+        // Muestra el menu principal
         loadMenu.hide();
         setUsernameInput.show();
         setUsernameBtn.show();
       }
       else
-        loadFonts();
+        loadSounds();
     },
-    function (x)
-    {
 
-    },
+    // Retorna el procentaje de descarga
+    function (x){},
+
+    // Si ocurre un error
   	function ( error )
     {
       console.log(error);
@@ -160,10 +164,18 @@ function loadFonts()
   );
 }
 
+// Actualiza la barra de carga
 function loadBarPercent()
 {
-  var allItems = modelsPathList.length + texturesPathList.length + soundsPathList.length + fontsPathList.length;
-  var completed = modelsList.length + texturesList.length + soundsList.length + fontsList.length;
+  // Suma de todos los assets a cargar
+  var allItems = modelsPathList.length + texturesPathList.length + soundsPathList.length;
+
+  // Suma de los assets cargados
+  var completed = modelsList.length + texturesList.length + soundsList.length;
+
+  // Obtiene el procentaje completado
   var percent = (100*completed)/allItems;
+
+  // Lo muestra en pantalla
   loadBar.css({width:percent+"%"});
 }

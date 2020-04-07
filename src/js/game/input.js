@@ -1,7 +1,37 @@
-var input = {keys:{up:false,right:false,down:false,left:false,shift:false,space:false}};
-var keysReleased = true;
+
+// Indica el estado de cada tecla (true => pressed)
+var input =
+{
+  keys:
+  {
+    up:false,
+    right:false,
+    down:false,
+    left:false,
+    shift:false,
+    space:false
+  }
+};
+
+// Oculta y centra el puntero en pantalla
+var mouseLocker;
+
+// Indica la dirección del vector velocidad del personaje
+var dir = new THREE.Vector3(0,0,0);
+
+// Velocidad al correr
+var runSpeed = 10;
+
+// Velocidad al estar agachado
+var crouchSpeed = 6;
+
+// Vector utilizado para hacer los cálculos de rotación en el eje X de la cámara
+var v1 = new THREE.Vector3();
+
+// Evento al presionar una tecla
 function onKeyDown(event)
 {
+    // Verifica que se esté en el estado "Jugando"
     if(gameState != "playing") return;
 
     switch (event.which)
@@ -27,8 +57,11 @@ function onKeyDown(event)
     }
 };
 
+// Evento al soltar una tecla
 function onKeyUp(event)
 {
+
+  // Verifica que se esté en el estado "Jugando"
   if(gameState != "playing") return;
 
     switch (event.which)
@@ -54,21 +87,53 @@ function onKeyUp(event)
     }
 };
 
+// Evento al mover el mouse
+var onDocumentMouseMove = function( event )
+{
+  // Verifica que se esté en el estado "Jugando"
+  if(gameState != "playing") return;
+
+  // Rota al personaje respecto al eje Y ( Izquierda - Derecha )
+	player.rotateOnWorldAxis(new THREE.Vector3(0,1,0),-event.movementX/100);
+
+  // Modifica el eje de rotación de la cámara respecto a X ( Arriba - Abajo )
+	var angleCheck = player.cameraRotator.clone().rotateX(-event.movementY/100);
+	var xRot = v1.copy( angleCheck.up ).applyQuaternion( angleCheck.quaternion ).angleTo(angleCheck.up);
+	angleCheck.remove(angleCheck);
+
+  // Limita la rotación en el eje X
+	if(xRot <= player.cameraAngleLimit )
+		player.cameraRotator.rotateX(-event.movementY/100);
+
+}
+
+// Evento al hacer click con el mouse
+var onDocumentMouseDown = function( event )
+{
+  // Verifica que se esté en el estado "Jugando"
+  if(gameState != "playing") return;
+    player.shoot();
+}
+
+// Se crean los event listeners asociados a las funciones anteriores
 document.addEventListener("keydown", onKeyDown, false);
 document.addEventListener("keyup", onKeyUp, false);
+document.addEventListener('mousemove', onDocumentMouseMove, false);
+document.addEventListener('mousedown', onDocumentMouseDown, false);
 
-var dir = new THREE.Vector3(0,0,0);
-var runSpeed = 10;
-var crouchSpeed = 6;
+
+// Actualiza el input en cada iteración del loop principal
 function inputEvents()
 {
+  // Obtiene la orientación del jugador
   player.getWorldDirection(dir);
 
-  if (player.grounded)
-    runSpeed = 10;
-  else
-    runSpeed = 8;
+  // Si el jugador está tocando el suelo, su velocidad es mayor
+  if (player.grounded) runSpeed = 10;
+  // Si el jugador no está tocando el suelo, su velocidad es menor
+  else runSpeed = 8;
 
+  // Movimiento si el jugador ha muerto
   if(gameState == "dead")
   {
     player.currentAnimation = "DIE";
@@ -76,6 +141,8 @@ function inputEvents()
     player.collider.velocity.x = 0;
     player.walking = false;
   }
+
+  // Movimientos si el jugador está agachado
   else if(input.keys.up && input.keys.right && input.keys.shift)
   {
     player.currentAnimation = "CFR";
@@ -139,8 +206,7 @@ function inputEvents()
     player.walking = true;
   }
 
-
-
+  // Movimientos si el jugador está corriendo
   else if(input.keys.up && input.keys.right)
   {
     player.currentAnimation = "RFR";
@@ -203,6 +269,8 @@ function inputEvents()
     player.collider.velocity.x = -dir.x*runSpeed;
     player.walking = true;
   }
+
+  // Idle al estár agachado
   else if(input.keys.shift)
   {
     player.currentAnimation = "CIDLE";
@@ -210,6 +278,8 @@ function inputEvents()
     player.collider.velocity.x = 0;
     player.walking = false;
   }
+
+  // Idle normal
   else
   {
     player.currentAnimation = "IDLE";
@@ -217,15 +287,14 @@ function inputEvents()
     player.collider.velocity.x = 0;
     player.walking = false;
   }
-  if (!player.grounded && gameState != "dead")
-  {
-    player.currentAnimation = "FALLING";
-  }
-  if (player.grounded && input.keys.space)
-  {
-    player.collider.velocity.y = 8;
-  }
 
+  // En el aire
+  if (!player.grounded && gameState != "dead") player.currentAnimation = "FALLING";
+
+  // Saltar
+  if (player.grounded && input.keys.space) player.collider.velocity.y = 8;
+
+  // Si el jugador ha muerto
   if(player.currentAnimation != player.prevAnimation && gameState != "dead")
   {
     player.mixer.stopAllAction();
@@ -234,33 +303,3 @@ function inputEvents()
   }
 
 }
-
-var v1 = new THREE.Vector3(); // create once and reuse it
-
-var onDocumentMouseMove = function( event )
-{
-  if(gameState != "playing") return;
-	player.rotateOnWorldAxis(new THREE.Vector3(0,1,0),-event.movementX/100);
-
-	var angleCheck = player.cameraRotator.clone().rotateX(-event.movementY/100);
-	var xRot = v1.copy( angleCheck.up ).applyQuaternion( angleCheck.quaternion ).angleTo(angleCheck.up);
-	angleCheck.remove(angleCheck);
-
-
-
-	if(xRot <= player.cameraAngleLimit )
-	{
-		player.cameraRotator.rotateX(-event.movementY/100);
-	}
-
-}
-
-var onDocumentMouseDown = function( event )
-{
-  if(gameState != "playing") return;
-  player.shoot();
-
-}
-
-document.addEventListener('mousemove', onDocumentMouseMove, false);
-document.addEventListener('mousedown', onDocumentMouseDown, false);

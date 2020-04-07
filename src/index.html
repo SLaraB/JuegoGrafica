@@ -2,9 +2,17 @@
 <html lang="en">
 	<head>
 		<title>UACh Battlegrounds</title>
+
+		<!-- CHARSET para mostrar carácteres correctamente -->
 		<meta charset="utf-8">
+
+		<!-- Ajustes de pantalla -->
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<!-- Estilos del UI -->
 		<link href="css/styles.css" type="text/css" rel="stylesheet">
+
+		<!-- LIBRERIAS -->
 
 		<!-- jQuery -->
 		<script src="js/libs/jquery.js"></script>
@@ -27,8 +35,14 @@
 		<!-- Librería para los physics -->
 		<script src="js/libs/cannon.js"></script>
 
+
+		<!-- CÓDIGO DEL JUEGO -->
+
 		<!-- Funciones de utilidad -->
 		<script src="js/game/utils.js"></script>
+
+		<!-- Interfaz de usuario -->
+		<script src="js/game/ui.js"></script>
 
 		<!-- Loader -->
 		<script src="js/game/loader.js"></script>
@@ -45,16 +59,61 @@
 		<!-- Comunicación con el servidor -->
 		<script src="js/game/client.js"></script>
 
+		<!-- Generador del mundo -->
+		<script src="js/game/level.js"></script>
+
 
 	</head>
 
 	<body onresize="resizeScreen()">
+
+		<!-- Lógica del juego -->
+		<script src="js/game/game.js"></script>
+
+		<script>
+
+			/**************************
+			/* Orden de ejecución:
+			/* 1.- loadUI() -----------> js/game/ui.js
+			/* 2.- connectToServer() --> js/game/client.js
+			/* 3.- loadModels() -------> js/game/loader.js
+			/**************************/
+
+			// Se ejecuta cuando termina de cargar la página
+			$(document).ready(function()
+			{
+				// Detecta si el navegador soporta WebGL
+		    if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+				// Si lo soporta
+		    else
+				{
+					// Carga la interfaz de usuario
+					loadUI();
+
+					// Establece la conexión de web sockets con el servidor
+					connectToServer();
+
+					// Carga los assets del juego
+					loadModels();
+				}
+
+			});
+
+		</script>
 
 		<!-- Container de WebGL -->
 		<div id="gameWindow"></div>
 
 		<!-- Interfaz del juego -->
 		<div id="gameUI" class="unselec">
+
+			<div id="respawnWindow">
+				<div class="cont">
+					<div class="title">Has sido asesinado por ...</div>
+					<button class="btn">Reaparecer</button>
+				</div>
+			</div>
 
 			<div id="killCounter">
 				<div class="title">SCORE</div>
@@ -141,48 +200,6 @@
 
 			<div id="mainMenuError" class="errorMsg">Mensaje de error.</div>
 		</div>
-
-
-		<!-- Lógica del juego -->
-		<script src="js/game/game.js"></script>
-
-		<script>
-
-			function initWebGL()
-			{
-				// Detecta si el navegador soporta WebGL
-		    if (!Detector.webgl)
-		    {
-		      // Despliega alerta de incompatibilidad
-		      Detector.addGetWebGLMessage();
-		    }
-		    else
-		    {
-		      // Inicia el juego (game/loader.js)
-		      loadModels();
-		    }
-			}
-
-			function showFPS()
-			{
-				var gameLoop = loop;
-				var stats = new Stats();
-
-				stats.domElement.style.position = "absolute";
-				stats.domElement.style.left = "0px";
-				stats.domElement.style.top = "0px";
-
-				document.body.appendChild( stats.domElement );
-
-				loop = function()
-				{
-					stats.begin();
-					gameLoop();
-					stats.end();
-				}
-			}
-
-		</script>
 
 	</body>
 </html>

@@ -1,3 +1,15 @@
+/**************************************
+ **
+ ** Austral Tournament - 2020
+ ** Autor: Eduardo Hopperdietzel
+ ** Archivo: game.js
+ **
+ ** Descripción: Sección encargada de generar,
+ ** controlar y actualizar todos los aspectos de una partida.
+ ** El loop principal se encuentra en esta sección.
+ **
+ *************************************/
+
 // Velocidad del tiempo
 var timeStep = 1/60;
 
@@ -7,92 +19,39 @@ var cannonDebugRenderer;
 // Ventana de renderer con Antialiasing
 var renderer;
 
-// Escena visual
-var scene;
-
-// Physics
-var physics;
-
-// Jugador
+// Jugador Principal
 var player;
-
-// Suelo
-var ground;
-
-// Colliders de tipo suelo
-var groundColliders = [];
-
-// Luz
-var light;
-
-// Impactos de bala
-var bulletHoles = [];
 
 // Estado del juego
 var gameState = "loading";
 
-// Textura del suelo
-var groundTexture;
-
-// Material del suelo
-var groundMaterial;
-
 // Otros jugadores
 var serverPlayers = {};
 
-var body;
-
-var box;
-
-var settings = {
-  sound:false
-}
-
-
-// Oculta y centra el puntero en pantalla
-var mouseLocker;
-
-
-// Justa el tamaño del canvas
-function resizeScreen()
+// Settings del juego
+var settings =
 {
-  if(gameState != "loading")
+  audio:
   {
-    player.camera.aspect = window.innerWidth / window.innerHeight;
-    player.camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    fxsVolume:0,
+    musicVolume:0,
+    enabled:false
+  },
+  shadows:
+  {
+    enabled:true,
+    quality:1,
+    distance:1
+  },
+  debug:
+  {
+    displayPhysics:false
   }
-
-}
+};
 
 // Inicializa los componentes del juego
 function init(msg)
 {
-  gameState = "playing";
-
-  // Muestra la ventana de mensajes
-  gameUI.show();
-
-  // Muestra los puntajes actuales
-  aKillCounter.html(msg.teamAKills);
-  bKillCounter.html(msg.teamBKills);
-
-  // Textura del suelo
-  groundTexture = texturesList[1];
-  groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-  groundTexture.offset.set( 0, 0 );
-  groundTexture.repeat.set( 20, 20 );
-
-  // Material del suelo
-  groundMaterial = new THREE.MeshPhongMaterial( {
-
-     color: 0x111111,
-     specular:0x010101,
-     shininess: 0,
-     map: groundTexture
-
-  } );
-
   // Ventana de visualización
   renderer = new THREE.WebGLRenderer({antialias:false});
 
@@ -100,7 +59,7 @@ function init(msg)
   renderer.setClearColor("#070B34");
 
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   // Añade la ventana al DOM
   gameWindow.html( $(renderer.domElement) );
@@ -113,145 +72,54 @@ function init(msg)
       mouseLocker.lock();
   }, false );
 
-  // Escena visual
-  scene = new THREE.Scene();
+  gameState = "playing";
 
-  // Escena de physics
-  physics = new CANNON.World();
-  physics.gravity.set(0,-9.82*1.5,0);
-  physics.broadphase = new CANNON.NaiveBroadphase(); // Algoritmo de collisión
-  cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, physics );
+  // Muestra la interfaz del juego
+  gameUI.show();
 
-  // Luz
-  light = new THREE.DirectionalLight( 0xffffff, 7,100 );
-  light.position.set( 500, 500, 0 );
-  light.castShadow = true;
-  //Set up shadow properties for the light
-  light.shadow.mapSize.width = 2048;  // default
-  light.shadow.mapSize.height = 2048; // default
-  light.shadow.camera.near = 0.5;    // default
-  light.shadow.camera.far = 1000;     // default
+  // Muestra los puntajes actuales
+  aKillCounter.html(msg.teamAKills);
+  bKillCounter.html(msg.teamBKills);
 
+  // Genera el mundo ( js/game/level.js )
+  generateLevel(msg);
 
-  var ambientLight = new THREE.AmbientLight( 0x666666,5 ); // soft white light
-  scene.add( ambientLight );
-
-  // Jugador
-  player = createPlayer(msg.team,"playing");
-
-
-  // Suelo
-  ground = new THREE.Mesh(new THREE.PlaneGeometry( 100, 100), groundMaterial);
-  ground.position.y = -2;
-  ground.lookAt(new THREE.Vector3(0,1,0));
-  ground.collider = new CANNON.Body({mass: 0, shape: new CANNON.Box(new CANNON.Vec3(50, 50, 0.01))});
-  ground.collider.position.y = -2;
-  ground.collider.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
-  ground.receiveShadow = true;
-  groundColliders.push(ground.collider);
-
-
-  // Añade los elementos a la escena visual
-  //scene.add( new THREE.AxesHelper( 5 ) ); // Muestra los ejes
-  scene.add( light );
-  scene.add( ground );
-
-
-  // Añade los elementos a la escena física
-  scene.add( player );
-  physics.add( player.collider );
-
-  physics.add( ground.collider );
-
-  var boxGeo = new THREE.BoxGeometry( 1, 1, 1 );
-  var boxMaterial = new THREE.MeshPhongMaterial( {
-     color: 0x111111,
-     shininess: 0,
-     map: texturesList[3]
-  } );
-  box = new THREE.Mesh( boxGeo, boxMaterial );
-  box.castShadow = true;
-  scene.add( box );
-
-  var shape = new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5));
-  body = new CANNON.Body({ mass: 1 });
-  body.addShape(shape);
-  body.position.set(1,5,0);
-  physics.add(body);
-  box.body = body;
-
-
-  var imagePrefix = "textures/skyboxes/Sunny/";
-  var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
-  var imageSuffix = ".jpg";
-
-  var materialArray = [];
-  for (var i = 0; i < 6; i++)
-   materialArray.push( new THREE.MeshBasicMaterial({
-    map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
-    side: THREE.BackSide
-   }));
-
-  var skyGeometry = new THREE.CubeGeometry( 500, 500, 500 );
-  var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
-  var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
-  skyBox.rotation.x += Math.PI / 2;
-  scene.add( skyBox );
-
-  msg.users.forEach((item, i) => {
-    loadNewPlayer(item);
-  });
-
-
-
-  // Tamaño del render
+  // Tamaño del render ( js/game/ui.js )
   resizeScreen();
-
 
   // Inicia el juego
   loop();
 }
 
-
-function loadNewPlayer(item)
-{
-  modelLoader.load( modelsPath + modelsPathList[0],
-
-    function ( human )
-    {
-      modelLoader.load( modelsPath + modelsPathList[1],
-
-        function ( gun )
-        {
-          var newPlayer = createServerPlayer(item.username,item.status,item.team,human,gun);
-          serverPlayers[item.username] = newPlayer;
-          scene.add( newPlayer );
-          physics.add( newPlayer.collider );
-        }
-      );
-    }
-  );
-}
-
-
-
-
 // Render Loop
 var loop = function ()
 {
+  // Actualiza las animaciones
   requestAnimationFrame( loop );
-  player.updatePlayer();
+
+  // Actualiza el input
 	inputEvents();
+
+  // Actualiza a todos los jugadores
+  updatePlayers()
+
+  // Actualiza las sombras
+  updateShadows();
+
+  // Actualiza los physics
 	updatePhysics();
-  updateBulletHoles();
 
+  // Render the scene
+  renderer.render(scene, player.camera);
+};
 
-  // Actualiza a los jugadores
-  for(var key in serverPlayers)
-  {
-    serverPlayers[key].updatePlayer();
-  }
+// Actualiza las sombras
+function updateShadows()
+{
+  // Verifica que estén activas
+  if(!settings.shadows.enabled) return;
 
+  // Calcula el rango de las sombras a partir de la posición del jugador principal
   var pPos = player.getPos();
   var angle = (new THREE.Vector3(pPos.x,pPos.y,0)).angleTo ( light.position );
   light.shadow.camera.top = 18 - pPos.x * Math.sin(angle);
@@ -259,23 +127,46 @@ var loop = function ()
   light.shadow.camera.left = -18 - pPos.z;
   light.shadow.camera.right = 18 - pPos.z;
   light.shadow.camera.updateProjectionMatrix();
+}
 
-
+// Actualiza los physics
+function updatePhysics()
+{
+  // CAMBIAR ! SOLO DE PRUEBA !
   box.position.copy(box.body.position);
   box.quaternion.copy(box.body.quaternion);
 
+  // Actualiza la posición de los agujeros de disparo
+  updateBulletHoles();
 
+  // Step the physics world
+  physics.step(timeStep);
 
-  // Render the scene
-  renderer.render(scene, player.camera);
-};
+  // Muestra physics
+  if(settings.debug.displayPhysics)
+    cannonDebugRenderer.update();
 
-function updatePhysics()
+}
+
+// Actualiza a todos los jugadores
+function updatePlayers()
 {
-    // Step the physics world
-    physics.step(timeStep);
 
-    // Muestra physics
-    //cannonDebugRenderer.update();
+  // Actualiza al jugador principal
+  player.updatePlayer();
 
+  // Actualiza a los jugadores de la sala
+  for(var key in serverPlayers)
+    serverPlayers[key].updatePlayer();
+
+}
+
+// Actualiza las posiciones de los impactos de bala
+function updateBulletHoles()
+{
+  for(var i=0;i<bulletHoles.length;i++)
+  {
+    bulletHoles[i].position.copy(bulletHoles[i].body.position);
+    bulletHoles[i].quaternion.copy(bulletHoles[i].body.quaternion);
+  }
 }

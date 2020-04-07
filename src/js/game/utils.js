@@ -1,8 +1,13 @@
-/*
- * Game Helpers
- *
- * A collection of useful math and object helpers
- */
+/**************************************
+ **
+ ** Austral Tournament - 2020
+ ** Autor: Eduardo Hopperdietzel
+ ** Archivo: utils.js
+ **
+ ** Descripción: Colección de funciones técnicas, para
+ ** facilitar cálculos dentro del juego.
+ **
+ *************************************/
 
  function makeTextSprite( message , textColor)
     {

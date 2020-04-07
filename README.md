@@ -7,6 +7,12 @@ Videojuego para el proyecto de curso de Computación Gráfica INFO265.
 ## Descripción
 Shooter en tercera persona, multiplayer.
 
+## To Do
+* In Game Menu
+* Settings Menu
+* Respawn Option
+* Server players 3D sound
+* Kill counter by player
 
 ## Integrantes
 * Eduardo Hopperdietzel

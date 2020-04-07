@@ -46,6 +46,27 @@ input
   color:white;
   text-align: center;
 }
+.btn
+{
+  text-align: center;
+  padding:5px;
+  color:white;
+  background:#333;
+  border:solid 1px #222;
+  border-radius: 1px;
+  cursor:pointer;
+  width:320px;
+  margin-top:15px;
+}
+.btn:hover
+{
+  background:#444;
+}
+.btn:active
+{
+  background:#333;
+}
+
 #gameUI
 {
   display:none;
@@ -200,6 +221,28 @@ input
   to {
     opacity:0;
   }
+}
+#respawnWindow
+{
+  display:none;
+  position: absolute;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
+  background:rgba(0,0,0,0.8);
+  z-index:20;
+  text-align: center;
+}
+#respawnWindow .cont
+{
+  margin-top: calc(40vh);
+}
+#respawnWindow .title
+{
+  font-size: 40px;
+  font-family: impact;
+  color:white;
 }
 #serverMessages
 {
