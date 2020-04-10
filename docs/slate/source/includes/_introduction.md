@@ -1,6 +1,14 @@
 # Introducción
 
-## Descripción
+## Objectivo
+El objetivo principal de esta documentación, es permitir al lector una fácil comprensión de los requerimientos, proceso de instalación y ejecución del videojuego Austral Tournament, para que pueda implementarlo en el entorno deseado.<br><br>
+
+También se abarcará en detalle la estructura, funcionamiento interno, API's y protocolos del software, para quién desee modificarlo, o utilizarlo como referencia para desarrollar su propio videojuego web multiplayer.  
+
+
+
+
+## ¿Qué es Austral Tournament?
 
 Austral Tournament es un videojuego 3D en tercera persona y multiplayer, que puede ser ejecutado desde un navegador web, si necesidad de instalar plugins addicionales.<br>
 
@@ -12,38 +20,3 @@ Adicionalmente, cuenta con un programa **[Node.JS](https://es.wikipedia.org/wiki
 <aside class="notice">
 Actualmente solo cuenta con la modalidad de juego <b>deathmatch</b> basada en equipos.
 </aside>
-
-
-## Librerías y Módulos
-
-###En el lado del cliente (navegador), se hace uso de las siguientes librerías:
-
-### [THREE JS](https://threejs.org)
-
-Utilizada para facilitar el manejo de gráficos, animaciones, texturizado y sombras.
-
-### [CANNON JS](https://schteppe.github.io/cannon.js/)
-
-Utilizada para facilitar el manejo de physics, ( Movimientos, colisiones, etc).
-
-### [Socket.IO](https://socket.io)
-
-Utilizada para facilitar el manejo del protocolo WebSockets con el servidor.
-
-### [JQuery](https://jquery.com)
-
-Utilizada para facilitar el manejo de elementos del DOM, (Interfaz de usuario).
-
-<aside class="success">Todas las librerías del cliente ya se encuentran incluidas en el proyecto.</aside>
-
-###En el lado del servidor, se hace uso de los siguientes módulos:
-
-### [Express JS](https://expressjs.com/es/)
-
-Utilizada para brindar a los clientes acceso al sitio web y a los assets del juego.
-
-### [Socket.IO](https://socket.io)
-
-Utilizada para facilitar el manejo del protocolo WebSockets con el cliente.
-
-<aside class="notice">Para mayor información sobre la instalación de los módulos del servidor, ir a la sección <b><a href="#instalacion">Instalación</a></b>.</aside>

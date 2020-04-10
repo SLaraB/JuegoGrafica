@@ -80,7 +80,7 @@ function listenToServerMessages()
     servers = msg;
 
     // Imprime la lista de salas en pantalla en formato tabla
-    var html = "<table><tr><th>Nombre de sevidor</th><th>Usuarios conectados</th><th>Creador</th></tr>";
+    var html = "<table><tr><th>Nombre de sala</th><th>Usuarios conectados</th><th>Creador</th></tr>";
 
     msg.forEach(function(s)
     {

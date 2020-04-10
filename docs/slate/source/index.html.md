@@ -12,6 +12,8 @@ includes:
   - introduction
   - install
   - ui-manual
+  - files
+  - classes
   - websockets
 
 search: true

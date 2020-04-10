@@ -165,33 +165,33 @@
 				</div>
 				<input id="setUsernameInput" class="hidden" type="text" placeholder="Nombre de Usuario"><br>
 				<button id="setUsernameBtn" class="hidden" onclick="setUserName()">Continuar</button>
-				<button id="createServerBtn" class="hidden" onclick="showCreateServerMenu()">Crear Servidor</button><br>
-				<button id="showServersBtn" class="hidden" onclick="showServersListMenu()">Unirse a Servidor</button>
+				<button id="createServerBtn" class="hidden" onclick="showCreateServerMenu()">Crear sala de Juego</button><br>
+				<button id="showServersBtn" class="hidden" onclick="showServersListMenu()">Unirse a sala de Juego</button>
 			</div>
 
 			<div id="createServerMenu" class="mainMenu">
-				<div class="title">Nuevo Servidor</div>
-				<input id="serverNameInput" type="text" placeholder="Nombre del Servidor"><br>
-				<input id="serverPassInput" type="password" placeholder="Contraseña del Servidor"><br>
+				<div class="title">Nueva sala de Juego</div>
+				<input id="serverNameInput" type="text" placeholder="Nombre de la sala"><br>
+				<input id="serverPassInput" type="password" placeholder="Contraseña de la sala"><br>
 				<button id="createServerBtn" onclick="createServer()">Crear</button><br>
 				<button id="cancelCreateServerBtn" onclick="showMainMenu()">Cancelar</button><br>
 			</div>
 
 			<div id="serversListMenu" class="mainMenu">
-				<div class="title">Servidores</div>
+				<div class="title">Salas de Juego</div>
 				<div class="serversList"></div>
 				<button id="cancelServersListBtn" onclick="showMainMenu()">Volver</button><br>
 			</div>
 
 			<div id="loginServerMenu" class="mainMenu">
 				<div class="title"></div>
-				<input id="loginServerPasswordInput" type="password" placeholder="Contraseña del Servidor"><br>
+				<input id="loginServerPasswordInput" type="password" placeholder="Contraseña de la sala"><br>
 				<button id="loginServerBtn" onclick="logIntoServer()">Login</button><br>
 				<button id="cancelServersListBtn" onclick="showServersListMenu()">Volver</button><br>
 			</div>
 
 			<div id="joinServerMenu" class="mainMenu">
-				<div class="serverTitle">Nombre del Servidor</div>
+				<div class="serverTitle">Nombre de la Sala</div>
 				<div class="teams">
 					<button id="joinTeamABtn" onclick="joinTeamA()">Crear</button><br>
 				</div>
