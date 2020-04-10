@@ -1,0 +1,348 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>API Reference</title>
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight .gh {
+  color: #999999;
+}
+.highlight .sr {
+  color: #f6aa11;
+}
+.highlight .go {
+  color: #888888;
+}
+.highlight .gp {
+  color: #555555;
+}
+.highlight .gs {
+}
+.highlight .gu {
+  color: #aaaaaa;
+}
+.highlight .nb {
+  color: #f6aa11;
+}
+.highlight .cm {
+  color: #75715e;
+}
+.highlight .cp {
+  color: #75715e;
+}
+.highlight .c1 {
+  color: #75715e;
+}
+.highlight .cs {
+  color: #75715e;
+}
+.highlight .c, .highlight .cd {
+  color: #75715e;
+}
+.highlight .err {
+  color: #960050;
+}
+.highlight .gr {
+  color: #960050;
+}
+.highlight .gt {
+  color: #960050;
+}
+.highlight .gd {
+  color: #49483e;
+}
+.highlight .gi {
+  color: #49483e;
+}
+.highlight .ge {
+  color: #49483e;
+}
+.highlight .kc {
+  color: #66d9ef;
+}
+.highlight .kd {
+  color: #66d9ef;
+}
+.highlight .kr {
+  color: #66d9ef;
+}
+.highlight .no {
+  color: #66d9ef;
+}
+.highlight .kt {
+  color: #66d9ef;
+}
+.highlight .mf {
+  color: #ae81ff;
+}
+.highlight .mh {
+  color: #ae81ff;
+}
+.highlight .il {
+  color: #ae81ff;
+}
+.highlight .mi {
+  color: #ae81ff;
+}
+.highlight .mo {
+  color: #ae81ff;
+}
+.highlight .m, .highlight .mb, .highlight .mx {
+  color: #ae81ff;
+}
+.highlight .sc {
+  color: #ae81ff;
+}
+.highlight .se {
+  color: #ae81ff;
+}
+.highlight .ss {
+  color: #ae81ff;
+}
+.highlight .sd {
+  color: #e6db74;
+}
+.highlight .s2 {
+  color: #e6db74;
+}
+.highlight .sb {
+  color: #e6db74;
+}
+.highlight .sh {
+  color: #e6db74;
+}
+.highlight .si {
+  color: #e6db74;
+}
+.highlight .sx {
+  color: #e6db74;
+}
+.highlight .s1 {
+  color: #e6db74;
+}
+.highlight .s {
+  color: #e6db74;
+}
+.highlight .na {
+  color: #a6e22e;
+}
+.highlight .nc {
+  color: #a6e22e;
+}
+.highlight .nd {
+  color: #a6e22e;
+}
+.highlight .ne {
+  color: #a6e22e;
+}
+.highlight .nf {
+  color: #a6e22e;
+}
+.highlight .vc {
+  color: #ffffff;
+}
+.highlight .nn {
+  color: #ffffff;
+}
+.highlight .nl {
+  color: #ffffff;
+}
+.highlight .ni {
+  color: #ffffff;
+}
+.highlight .bp {
+  color: #ffffff;
+}
+.highlight .vg {
+  color: #ffffff;
+}
+.highlight .vi {
+  color: #ffffff;
+}
+.highlight .nv {
+  color: #ffffff;
+}
+.highlight .w {
+  color: #ffffff;
+}
+.highlight {
+  color: #ffffff;
+}
+.highlight .n, .highlight .py, .highlight .nx {
+  color: #ffffff;
+}
+.highlight .ow {
+  color: #f92672;
+}
+.highlight .nt {
+  color: #f92672;
+}
+.highlight .k, .highlight .kv {
+  color: #f92672;
+}
+.highlight .kn {
+  color: #f92672;
+}
+.highlight .kp {
+  color: #f92672;
+}
+.highlight .o {
+  color: #f92672;
+}
+    </style>
+    <link href="stylesheets/screen-a1ce949a.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print-bccf8c07.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all-c5541673.js"></script>
+  </head>
+
+  <body class="index" data-languages="[&quot;shell&quot;,&quot;javascript&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar-cad8cdcb.png" alt="Navbar" />
+      </span>
+    </a>
+    <div class="toc-wrapper">
+      <img src="images/logo-4c7b3637.png" class="logo" alt="Logo" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="shell">shell</a>
+              <a href="#" data-language-name="javascript">javascript</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <ul id="toc" class="toc-list-h1">
+          <li>
+            <a href="#introduccion" class="toc-h1 toc-link" data-title="Introducción">Introducción</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#objectivo" class="toc-h2 toc-link" data-title="Objectivo">Objectivo</a>
+                  </li>
+                  <li>
+                    <a href="#que-es-austral-tournament" class="toc-h2 toc-link" data-title="¿Qué es Austral Tournament?">¿Qué es Austral Tournament?</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#requerimientos" class="toc-h1 toc-link" data-title="Requerimientos">Requerimientos</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#navegador-web" class="toc-h2 toc-link" data-title="Navegador Web">Navegador Web</a>
+                  </li>
+                  <li>
+                    <a href="#node-js" class="toc-h2 toc-link" data-title="Node JS">Node JS</a>
+                  </li>
+                  <li>
+                    <a href="#librerias-y-modulos" class="toc-h2 toc-link" data-title="Librerías y Módulos">Librerías y Módulos</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#instalacion-y-ejecucion" class="toc-h1 toc-link" data-title="Instalación y Ejecución">Instalación y Ejecución</a>
+          </li>
+          <li>
+            <a href="#interfaz-de-usuario" class="toc-h1 toc-link" data-title="Interfaz de Usuario">Interfaz de Usuario</a>
+          </li>
+          <li>
+            <a href="#estructura-jerarquica" class="toc-h1 toc-link" data-title="Estructura Jerárquica">Estructura Jerárquica</a>
+          </li>
+          <li>
+            <a href="#clases-y-metodos" class="toc-h1 toc-link" data-title="Clases y Métodos">Clases y Métodos</a>
+          </li>
+          <li>
+            <a href="#websockets-api" class="toc-h1 toc-link" data-title="WebSockets API">WebSockets API</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#introduccion" class="toc-h2 toc-link" data-title="Introducción">Introducción</a>
+                  </li>
+                  <li>
+                    <a href="#protocolo-de-autentificacion" class="toc-h2 toc-link" data-title="Protocolo de Autentificación">Protocolo de Autentificación</a>
+                  </li>
+              </ul>
+          </li>
+      </ul>
+        <ul class="toc-footer">
+            <li><a href='https://github.com/lord/slate'>Documentation Powered by Slate</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id='introduccion'>Introducción</h1><h2 id='objectivo'>Objectivo</h2>
+<p>El objetivo principal de esta documentación, es permitir al lector una fácil comprensión de los requerimientos, proceso de instalación y ejecución del videojuego Austral Tournament, para que pueda implementarlo en el entorno deseado.<br><br></p>
+
+<p>También se abarcará en detalle la estructura, funcionamiento interno, API&#39;s y protocolos del software, para quién desee modificarlo, o utilizarlo como referencia para desarrollar su propio videojuego web multiplayer.  </p>
+<h2 id='que-es-austral-tournament'>¿Qué es Austral Tournament?</h2>
+<p>Austral Tournament es un videojuego 3D en tercera persona y multiplayer, que puede ser ejecutado desde un navegador web, si necesidad de instalar plugins addicionales.<br></p>
+
+<p>Hace uso de la API de <strong><a href="https://es.wikipedia.org/wiki/WebGL">WebGL</a></strong> ( presente en la mayoría de los navegadores contemporáneos )
+, la cual permite utilizar OpenGL 2.0 u OpenGL ES 2.0 para el renderizado.</p>
+
+<p>Adicionalmente, cuenta con un programa <strong><a href="https://es.wikipedia.org/wiki/Node.js">Node.JS</a></strong>, utilizado como servidor, el cual se encarga de la jugabilidad multiplayer, vía el protocolo <strong><a href="https://es.wikipedia.org/wiki/WebSocket">WebSocket</a></strong>.</p>
+
+<aside class="notice">
+Actualmente solo cuenta con la modalidad de juego <b>deathmatch</b> basada en equipos.
+</aside>
+<h1 id='requerimientos'>Requerimientos</h1><h2 id='navegador-web'>Navegador Web</h2>
+<p>Para poder visualizar el juego, es necesario contar con un navegador web que soporte WebGL.<br>
+La mayoría de los navegadores contemporáneos lo soportan.<br><br></p>
+
+<p>Puede ver la lista de todos los navegadores compatibles <strong><a href="https://www.soft8soft.com/webgl-supported-browsers-and-troubleshooting/">aquí.</a></strong></p>
+<h2 id='node-js'>Node JS</h2>
+<p>Para poder ejecutar el servidor, se necesario tener instalado la última versión de <strong><a href="https://nodejs.org/es/">Node JS</a></strong>.<br>
+Puede descargar la última version en: <strong><a href="https://nodejs.org/es/download/">https://nodejs.org/es/download/</a></strong>.</p>
+<h2 id='librerias-y-modulos'>Librerías y Módulos</h2>
+<p>En el lado del cliente (navegador), se hace uso de las siguientes librerías JavaScript:</p>
+<h3 id='three-js-gt-r115'><a href="https://threejs.org">THREE JS &gt;= r115</a></h3>
+<p>Utilizada para facilitar el manejo de gráficos, animaciones, texturizado y sombras.</p>
+<h3 id='cannon-js'><a href="https://schteppe.github.io/cannon.js/">CANNON JS</a></h3>
+<p>Utilizada para facilitar el manejo de physics, ( Movimientos, colisiones, etc).</p>
+<h3 id='socket-io-gt-2-3-0'><a href="https://socket.io">Socket.IO &gt;= 2.3.0</a></h3>
+<p>Utilizada para facilitar el manejo del protocolo WebSockets con el servidor.</p>
+<h3 id='jquery-gt-3-4-1'><a href="https://jquery.com">JQuery &gt;= 3.4.1</a></h3>
+<p>Utilizada para facilitar el manejo de elementos del DOM, (Interfaz de usuario).</p>
+
+<aside class="success">Todas las librerías del cliente ya se encuentran incluidas en el proyecto.</aside>
+<h3 id='en-el-lado-del-servidor-se-hace-uso-de-los-siguientes-modulos'>En el lado del servidor, se hace uso de los siguientes módulos:</h3><h3 id='express-js-gt-4-x'><a href="https://expressjs.com/es/">Express JS &gt;= 4.x</a></h3>
+<p>Utilizada para brindar a los clientes acceso al sitio web y a los assets del juego.</p>
+<h3 id='socket-io-gt-2-3-0-2'><a href="https://socket.io">Socket.IO &gt;= 2.3.0</a></h3>
+<p>Utilizada para facilitar el manejo del protocolo WebSockets con el cliente.</p>
+
+<aside class="notice">Para mayor información sobre la instalación de los módulos del servidor, ir a la sección <b><a href="#instalacion">Instalación y Ejecución</a></b>.</aside>
+<h1 id='instalacion-y-ejecucion'>Instalación y Ejecución</h1>
+<p>Una vez instalado un navegador web compatible, y Node JS, abrir una términal y ejecutar los siguientes comandos:</p>
+<pre class="highlight shell tab-shell"><code><span class="c"># Clonar el repositorio</span>
+<span class="gp">$ </span>git clone https://github.com/ehopperdietzel/JuegoGrafica.git
+
+<span class="c"># Acceder al directorio raíz</span>
+<span class="gp">$ </span><span class="nb">cd </span>JuegoGrafica
+
+<span class="c"># Instalar los módulos requeridos por Node JS</span>
+<span class="gp">$ </span>npm install
+
+<span class="c"># Ejecutar el servidor</span>
+<span class="gp">$ </span>node server.js
+</code></pre>
+<p><br><br> <strong><em>( ver pestaña shell )</em></strong>.</p>
+
+<p>Tras ejecutar los comandos, y con el servidor en funcionamiento, puede acceder al juego, ingresando a la dirección por defecto:<br></p>
+
+<p><a href="http://localhost:3000">http://localhost:3000</a></p>
+<h1 id='interfaz-de-usuario'>Interfaz de Usuario</h1><h1 id='estructura-jerarquica'>Estructura Jerárquica</h1><h1 id='clases-y-metodos'>Clases y Métodos</h1><h1 id='websockets-api'>WebSockets API</h1><h2 id='introduccion'>Introducción</h2><h2 id='protocolo-de-autentificacion'>Protocolo de Autentificación</h2>
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="shell">shell</a>
+                <a href="#" data-language-name="javascript">javascript</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
