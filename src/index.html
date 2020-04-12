@@ -105,13 +105,60 @@
 		<!-- Container de WebGL -->
 		<div id="gameWindow"></div>
 
+		<!-- Botón de settings -->
+		<div id="settingsBtn" class="btn" onclick="showSettings()">
+			<img src="textures/UI/settings.png">
+		</div>
+
+		<!-- Ventana de settings -->
+		<div id="settingsWindow">
+			<div class="title">Settings</div>
+			Music Volume:<br>
+			<input type="range" min="0" max="100" value="100" class="slider" id="musicVolSlider"><br>
+			SoundFX Volume:<br>
+			<input type="range" min="0" max="100" value="100" class="slider" id="soundVolSlider"><br>
+			Shadows Distance:<br>
+			<input type="range" min="5" max="40" value="60" class="slider" id="shadowDistSlider"><br>
+			Shadows Quality:<br>
+			<input type="range" min="1" max="5" value="4" class="slider" id="shadowQualitySlider"><br>
+			<button class="btn" onclick="hideSettings()">Close Menu</button>
+			<button id="settingsLeave" class="btn" onclick="leaveRoom()">Leave Room</button>
+		</div>
+
 		<!-- Interfaz del juego -->
 		<div id="gameUI" class="unselec">
+
+			<div id="gameOverWindow">
+				<div class="cont">
+					<div class="title A">VICTORIA</div>
+					<div class="title B">DERROTA</div>
+					<div class="scores">
+						<div class="allies">
+							<div class="tit">Allies</div>
+							<table>
+								<tr><th>Usuario</th><th>Kills</th><th>Deaths</th></tr>
+								<tr><td>Juanito</td><td>3</td><td>5</td></tr>
+								<tr><td>Pedro</td><td>2</td><td>5</td></tr>
+							</table>
+						</div>
+						<div class="enemies">
+							<div class="tit">Enemies</div>
+							<table>
+								<tr><th>Usuario</th><th>Kills</th><th>Deaths</th></tr>
+								<tr><td>Juanito</td><td>3</td><td>5</td></tr>
+								<tr><td>Pedro</td><td>2</td><td>5</td></tr>
+							</table>
+						</div>
+					</div>
+					<button class="btn" onclick="playAgain()">Jugar Otra Vez</button><br>
+					<button class="btn" onclick="leaveRoom()">Salir</button>
+				</div>
+			</div>
 
 			<div id="respawnWindow">
 				<div class="cont">
 					<div class="title">Has sido asesinado por ...</div>
-					<button class="btn">Reaparecer</button>
+					<button class="btn" onclick="player.respawn()">Reaparecer</button>
 				</div>
 			</div>
 

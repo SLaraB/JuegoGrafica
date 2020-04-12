@@ -19,8 +19,14 @@ var gameUI, healthBar, ammoBar;
 // Contador de kills
 var killCounter, aKillCounter, bKillCounter;
 
+// Settings
+var settingsWindow,settingsLeaveRoom,settingsMusicLevel,settingsSoundLevel,settingsShadowDistance,settingsShadowQuality;
+
 // Ventana de respawn
 var respawnWindow,respawnTitle;
+
+// Ventana de gameOver
+var gameOverWindow;
 
 // Mira
 var crosshair;
@@ -85,7 +91,52 @@ var serverMessages, messagesCont;
 // Obtiene los elementos del DOM
 function loadUI()
 {
+    settingsWindow = $("#settingsWindow");
+    settingsLeaveRoom = $("#settingsLeave");
+    settingsMusicLevel = $("#musicVolSlider");
+    settingsSoundLevel = $("#soundVolSlider");
+    settingsShadowDistance = $("#shadowDistanceSlider");
+    settingsShadowQuality = $("#shadowQualitySlider");
+
+    settingsMusicLevel.on("change",function()
+    {
+      settings.audio.musicVolume = settingsMusicLevel.val()*0.01;
+      soundtrack.setVolume(settings.audio.musicVolume);
+      localStorage.setItem("musicVol",settings.audio.musicVolume);
+    });
+
+    settingsSoundLevel.on("change",function()
+    {
+      settings.audio.fxsVolume = settingsSoundLevel.val()*0.01;
+
+      localStorage.setItem("soundVol",settings.audio.musicVolume);
+    });
+
+    settingsShadowQuality.on("change",function()
+    {
+      settings.shadows.quality = settingsShadowQuality.val();
+
+      localStorage.setItem("shadowsQ",settings.shadows.quality);
+
+      if(gameState == "playing")
+      {
+        /*
+        light.shadow.mapSize.width = 256*settings.shadows.quality;
+        light.shadow.mapSize.height = 256*settings.shadows.quality;
+        scene.remove(light);
+        scene.add(light);
+        */
+      }
+    });
+
+
+
+
+
+
+
     gameWindow = $("#gameWindow");
+    gameOverWindow = $("#gameOverWindow");
     gameUI = $("#gameUI");
     respawnWindow = $("#respawnWindow");
     respawnTitle = $("#respawnWindow .title");
@@ -119,10 +170,42 @@ function loadUI()
     allMainMenus = $(".mainMenu");
 
     // Obtiene el nombre de usuario usado previamente
-    var prevUsername = localStorage.getItem("username");
-    if(prevUsername != null)
+    var getter = localStorage.getItem("username");
+    if(getter != null)
       // Asigna el nombre de usuario previo al input
-      setUsernameInput.val(prevUsername);
+      setUsernameInput.val(getter);
+
+    getter = localStorage.getItem("musicVol");
+    if(getter != null)
+    {
+      settingsMusicLevel.val(getter);
+      settings.audio.musicVolume = getter;
+    }
+    else
+    {
+      settingsMusicLevel.val(0.05);
+      settings.audio.musicVolume = 0.05;
+    }
+
+    getter = localStorage.getItem("soundVol");
+    if(getter != null)
+    {
+      settingsMusicLevel.val(getter);
+      settings.audio.fxsVolume = getter;
+    }
+    else
+    {
+      settingsMusicLevel.val(1);
+      settings.audio.fxsVolume = 1;
+    }
+
+    getter = localStorage.getItem("shadowsQ");
+    if(getter != null)
+    {
+      settingsShadowQuality.val(getter);
+      settings.shadows.quality = getter;
+    }
+
 }
 
 // Reajusta el tamaño del canvas cuando se cambia el tamaño de la ventana
@@ -146,6 +229,7 @@ function resizeScreen()
 // Asigna el nombre de usuario
 function setUserName()
 {
+  soundtrack.play();
   socket.emit('setUsername', setUsernameInput.val());
 }
 
@@ -193,4 +277,19 @@ function showServerLoginMenu(id)
 function logIntoServer()
 {
   socket.emit('logIntoServer',{id:currentServer.id,pass:loginServerPasswordInput.val()});
+}
+
+function showSettings()
+{
+  if(gameState == "playing")
+    settingsLeaveRoom.show();
+  else
+    settingsLeaveRoom.hide();
+
+  settingsWindow.show();
+}
+
+function hideSettings()
+{
+  settingsWindow.hide();
 }

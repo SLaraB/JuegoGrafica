@@ -8,7 +8,9 @@
  ** del personaje principal.
  **
  *************************************/
-
+var runAnims = ["RF","RR","RB","RL","RFL","RFR","RBR","RBL"];
+var crouchAnims = ["CF","CR","CB","CL","CFL","CFR","CBR","CBL"];
+var soundRange = 0.2;
 // Genera al jugador principal
 function createPlayer(team,status)
 {
@@ -254,6 +256,17 @@ function createPlayer(team,status)
   // Asigna la vida del jugador
   object.setHealth = function(value,username)
   {
+    if(object.health > value && value > 0)
+    {
+      // Sonido de dolor
+      var sound = new THREE.PositionalAudio( player.audioListener );
+      object.model.add(sound);
+      sound.setRefDistance(soundRange);
+      sound.setVolume(settings.audio.fxsVolume);
+      sound.setBuffer( soundsList[4 + Math.round(Math.random())] );
+      sound.play();
+      setTimeout(function(){ object.model.remove(sound); delete sound;}, 200);
+    }
     // Actualiza el valor
     object.health = value;
 
@@ -269,6 +282,15 @@ function createPlayer(team,status)
     // Si se acaba la vida
     if(value <= 0)
     {
+      // Sonido de muerte
+      var sound = new THREE.PositionalAudio( player.audioListener );
+      object.model.add(sound);
+      sound.setRefDistance(soundRange);
+      sound.setVolume(settings.audio.fxsVolume);
+      sound.setBuffer( soundsList[6] );
+      sound.play();
+      setTimeout(function(){ object.model.remove(sound); delete sound;}, 200);
+
       // Notifica al servidor que ha sido asesinado
       socket.emit("userKilled",{userKilled:object.username,killedBy:username});
 
@@ -294,6 +316,8 @@ function createPlayer(team,status)
       // Después de 3 segundos, se realiza el fadeout del personaje
       setTimeout(function()
       {
+        if(gameState != "dead") return;
+
         // Desactiva las sombras
         object.model.children[1].castShadow = false;
         object.weapon.children[0].castShadow = false;
@@ -334,17 +358,15 @@ function createPlayer(team,status)
     // Reproduce el sonido de disparo
     if(settings.audio.enabled)
     {
-      // Obtiene el sonido de disparo
-      var shootSound = new THREE.Audio( object.audioListener );
-
-      // Asigna el sonido
-      shootSound.setBuffer(soundsList[0]);
-
+      var sound = new THREE.PositionalAudio( player.audioListener );
+      object.model.add(sound);
+      sound.setRefDistance(soundRange);
       // Cambia la afinación aleatoriamente para generar variación ( No funciona en Safari )
-      shootSound.detune = (Math.random()*700)-350;
-
-      // Reproduce el sonido
-      shootSound.play();
+      sound.detune = (Math.random()*700)-350;
+      sound.setVolume(settings.audio.fxsVolume);
+      sound.setBuffer( soundsList[0] );
+    	sound.play();
+      setTimeout(function(){ object.model.remove(sound); delete sound;}, 200);
     }
 
     // Notifica al servidor que se ha disparado (Se envia la posición inicial y dirección)
@@ -492,34 +514,67 @@ function createPlayer(team,status)
 
   }
 
+  // Respawn
+  object.respawn = function()
+  {
+    object.setHealth(100,null);
+    object.ammo = 100;
+    object.model.children[1].castShadow = true;
+    object.weapon.children[0].castShadow = true;
+    object.materialFadeOut = false;
+    object.material.opacity = 1;
+    object.weaponMaterial.opacity = 1;
+    gameState = "playing";
+    respawnWindow.hide();
+
+    if(object.team == "B")
+    {
+      object.collider.position.set(31,-1.4,-35);
+    }
+    else
+    {
+      object.collider.position.set(-45,-1.4,38);
+    }
+
+    socket.emit("respawn");
+  }
+
   // Efecto de sonido al caminar
   object.walkSoundLoop = function()
   {
+    var running = runAnims.includes(object.currentAnimation);
     // Verifica que el audio esté activo
     if(settings.audio.enabled)
     {
       // Si está caminando
-      if(object.walking)
+      if(object.walking && object.grounded)
       {
-        // Crea el sonido
-        var stepSound = new THREE.Audio( object.audioListener );
+        var sound = new THREE.PositionalAudio( player.audioListener );
+        object.model.add(sound);
+        sound.setRefDistance(soundRange);
+        // Cambia la afinación aleatoriamente para generar variación ( No funciona en Safari )
+        sound.detune = (Math.random()*700)-350;
+        if(running)
+          sound.setVolume(settings.audio.fxsVolume*0.8);
+        else
+          sound.setVolume(settings.audio.fxsVolume*0.6);
 
-        // Asigna el sonido de "paso"
-        stepSound.setBuffer(soundsList[1]);
+        sound.setBuffer( soundsList[1] );
+      	sound.play();
 
-        // Cambia la afinación aleatoriamente para generar variación
-        stepSound.detune = (Math.random()*700)-350;
+        setTimeout(function(){ object.model.remove(sound); delete sound;}, 200);
 
-        // Reproduce el sonido
-        stepSound.play();
       }
     }
-
-    setTimeout(object.walkSoundLoop, 325);
+    if(running)
+      setTimeout(object.walkSoundLoop, 270);
+    else
+      setTimeout(object.walkSoundLoop, 570);
   }
 
   // Genera el loop de sonido al caminar
   object.walkSoundLoop();
+  object.respawn();
 
   return object;
 }

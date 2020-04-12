@@ -144,7 +144,7 @@ function listenToServerMessages()
     if(ply == undefined)return;
 
     // Actualiza su posición en la simulación actual
-    ply.targetPosition = new CANNON.Vec3(msg.x,msg.y,msg.z);
+    ply.targetPosition.set(msg.x,msg.y,msg.z);
 
     // Actualiza su rotación en la simulación actual
     ply.rotation.set(msg.qx,msg.qy,msg.qz);
@@ -176,6 +176,58 @@ function listenToServerMessages()
     ply.shoot(msg);
   });
 
+  // Notifica que un usuario ha reaparecido
+  socket.on("userRespawned",function(user)
+  {
+    // Obtiene al jugador almacenado localmente
+    var ply = serverPlayers[user];
+
+    // Verifica que esté previamente almacenado
+    if(ply == undefined)return;
+
+    // Realiza su respawn
+    ply.respawn();
+  });
+
+  // Si se termina el juego
+  socket.on("gameOver",function(msg)
+  {
+    gameState = "gameOver";
+    gameOverWindow.find(".title").hide();
+
+    if(msg.winnerTeam == player.team)
+      gameOverWindow.find(".A").show();
+    else
+      gameOverWindow.find(".B").show();
+
+    var a = msg.scoresA;
+    var b = msg.scoresB;
+
+    var htmlA = "<tr><th>Usuario</th><th>Kills</th><th>Deaths</th></tr>";
+
+    for(var i = 0; i < a.length;i++)
+      htmlA += "<tr><td>"+htmlEntities(a[i].username)+"</td><td>"+a[i].kills+"</td><td>"+a[i].deaths+"</td><td></tr>";
+
+    var htmlB = "<tr><th>Usuario</th><th>Kills</th><th>Deaths</th></tr>";
+
+    for(var i = 0; i < b.length;i++)
+      htmlB += "<tr><td>"+htmlEntities(b[i].username)+"</td><td>"+b[i].kills+"</td><td>"+b[i].deaths+"</td><td></tr>";
+
+    if(player.team == "A")
+    {
+      gameOverWindow.find(".allies table").html(htmlA);
+      gameOverWindow.find(".enemies table").html(htmlB);
+    }
+    else
+    {
+      gameOverWindow.find(".allies table").html(htmlB);
+      gameOverWindow.find(".enemies table").html(htmlA);
+    }
+
+    gameOverWindow.fadeIn(2000);
+
+  });
+
   // Notifica que un jugador ha muerto
   socket.on("userKilled",function(msg)
   {
@@ -192,17 +244,24 @@ function listenToServerMessages()
     // Verifica que esté previamente almacenado
     if(ply == undefined)return;
 
+    // Sonido de muerte
+    var sound = new THREE.PositionalAudio( player.audioListener );
+    ply.model.add(sound);
+    sound.setRefDistance(soundRange);
+    sound.setVolume(settings.audio.fxsVolume);
+    sound.setBuffer( soundsList[6] );
+    sound.play();
+    setTimeout(function(){ ply.model.remove(sound); delete sound;}, 200);
+
     // Detiene todas sus animaciones
     ply.mixer.stopAllAction();
+
 
     // Reproduce la animación de muerte
     var anim = ply.mixer.clipAction( ply.clips.DIE );
     anim.setLoop( THREE.LoopOnce );
     anim.clampWhenFinished = true;
     anim.play();
-
-    // Desactiva las collisiones temporalmente
-    physics.removeBody(ply.collider);
 
     // Realiza un fade out del personaje a los 3 segundos
     setTimeout(function()
@@ -224,7 +283,7 @@ function listenToServerMessages()
     messagesCont.append("<div><b>"+htmlEntities(msg)+"</b> se ha desconectado.</div>");
 
     // Obtiene al jugador desconectado
-    var ply = serverPlayers[msg.username];
+    var ply = serverPlayers[msg];
 
     // Verifica que esté previamente almacenado
     if(ply == undefined)return;
@@ -236,7 +295,7 @@ function listenToServerMessages()
     physics.remove(ply.collider);
 
     // Lo elimina del la lista
-    delete ply;
+    delete serverPlayers[msg];
 
   });
 }

@@ -91,7 +91,7 @@ function onKeyUp(event)
 var onDocumentMouseMove = function( event )
 {
   // Verifica que se esté en el estado "Jugando"
-  if(gameState != "playing") return;
+  if(gameState != "playing" || !mouseLocker.isLocked) return;
 
   // Rota al personaje respecto al eje Y ( Izquierda - Derecha )
 	player.rotateOnWorldAxis(new THREE.Vector3(0,1,0),-event.movementX/100);
@@ -292,7 +292,23 @@ function inputEvents()
   if (!player.grounded && gameState != "dead") player.currentAnimation = "FALLING";
 
   // Saltar
-  if (player.grounded && input.keys.space) player.collider.velocity.y = 7;
+  if (player.grounded && input.keys.space)
+  {
+    player.collider.velocity.y = 7;
+    // Sonido de muerte
+    var sound = new THREE.PositionalAudio( player.audioListener );
+    player.model.add(sound);
+    sound.setRefDistance(soundRange);
+    sound.setVolume(settings.audio.fxsVolume);
+
+    var src = soundsList[3];
+    if( Math.round(Math.random()) == 1 )
+    src = soundsList[7];
+
+    sound.setBuffer( src );
+    sound.play();
+    setTimeout(function(){ player.model.remove(sound); delete sound;}, 200);
+  }
 
   // Si el jugador ha muerto
   if(player.currentAnimation != player.prevAnimation && gameState != "dead")

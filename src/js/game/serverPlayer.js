@@ -146,6 +146,7 @@ function createServerPlayer(username,status,team,human,gun)
 
     // Ajusta el tamaño del letrero
     object.usernameText.baseSize = new THREE.Vector3(object.usernameText.scale.x,object.usernameText.scale.y,1);
+    object.textSize = new THREE.Vector3();
     object.usernameText.position.set(object.position.x,object.position.y+2,object.position.z);
 
     // Asigna el letrero al personaje
@@ -213,6 +214,16 @@ function createServerPlayer(username,status,team,human,gun)
     // Oculta la partícula después de 50 milisegundos
     setTimeout(function(){ object.gunFireParticle.visible = false; }, 50);
 
+    // Sonido de disparo
+    var sound = new THREE.PositionalAudio( player.audioListener );
+    object.model.add(sound);
+    sound.setRefDistance(soundRange);
+    sound.setVolume(settings.audio.fxsVolume);
+    sound.setBuffer( soundsList[0] );
+  	sound.play();
+    setTimeout(function(){ object.model.remove(sound); delete sound;}, 200);
+
+
     // Ray con las coordenadas recibidas del servidor
     if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(msg.cx,msg.cy,msg.cz),to:new CANNON.Vec3(msg.ax,msg.ay,msg.az)}))
     {
@@ -251,14 +262,17 @@ function createServerPlayer(username,status,team,human,gun)
   // Actualiza el "letrero" con el nombre de usuario
   object.updateUsernameText = function()
   {
+    object.textSize.copy(object.usernameText.baseSize);
+    player.camera.getWorldPosition(object.camPos);
     // Actualiza el letrero con nombre de usuario
-    var textDist = object.getWorldPosition().distanceTo( player.camera.getWorldPosition());
+    object.getWorldPosition(object.pos);
+    var textDist = object.pos.distanceTo(object.camPos);
     if(textDist >= 5 && textDist <= 10)
-      object.usernameText.scale.copy(object.usernameText.baseSize.clone().multiplyScalar(textDist/3.5));
+      object.usernameText.scale.copy(object.textSize.multiplyScalar(textDist/3.5));
     else if(textDist < 5)
-      object.usernameText.scale.copy(object.usernameText.baseSize.clone().multiplyScalar(5/3.5));
+      object.usernameText.scale.copy(object.textSize.multiplyScalar(5/3.5));
     else if(textDist > 10)
-      object.usernameText.scale.copy(object.usernameText.baseSize.clone().multiplyScalar(10/3.5));
+      object.usernameText.scale.copy(object.textSize.multiplyScalar(10/3.5));
   }
 
   // Actualiza los physics
@@ -268,7 +282,7 @@ function createServerPlayer(username,status,team,human,gun)
     object.collider.position.lerp(object.targetPosition,0.5,object.collider.position);
 
     // Copia coordenadas de Cannon.js a Three.js
-    object.position.copy(object.collider.position);
+    object.position.set(object.collider.position.x,object.collider.position.y,object.collider.position.z);
     object.position.y -= 0.3;
 
     // Actualiza collider cabeza
@@ -307,9 +321,74 @@ function createServerPlayer(username,status,team,human,gun)
       object.usernameText.material.opacity-=0.01;
       object.material.opacity-=0.01;
       object.weaponMaterial.opacity-=0.01;
+      if(object.material.opacity <= 0)
+      {
+        scene.remove(object);
+        physics.removeBody(object.collider);
+      }
     }
 
   }
+
+  // Respawn
+  object.respawn = function()
+  {
+    object.model.children[1].castShadow = true;
+    object.weapon.children[0].castShadow = true;
+    object.materialFadeOut = false;
+    object.usernameText.material.opacity = 1;
+    object.material.opacity = 1;
+    object.weaponMaterial.opacity = 1;
+    object.status = "playing";
+
+    // Lo añade a la escena visual (THREE)
+    scene.add( object );
+
+    // Añade sus physics a (CANNON)
+    physics.add( object.collider );
+
+    if(object.team == "B")
+    {
+      object.collider.position.set(31,-1.4,-35);
+    }
+    else
+    {
+      object.collider.position.set(-45,-1.4,38);
+    }
+  }
+
+  // Efecto de sonido al caminar
+  object.walkSoundLoop = function()
+  {
+    var running = runAnims.includes(object.currentAnimation);
+    var crouching = crouchAnims.includes(object.currentAnimation);
+
+    // Verifica que el audio esté activo
+    if(settings.audio.enabled && (crouching||running))
+    {
+      var sound = new THREE.PositionalAudio( player.audioListener );
+      object.model.add(sound);
+      sound.setRefDistance(soundRange);
+      // Cambia la afinación aleatoriamente para generar variación ( No funciona en Safari )
+      sound.detune = (Math.random()*700)-350;
+      if(running)
+        sound.setVolume(settings.audio.fxsVolume*0.8);
+      else
+        sound.setVolume(settings.audio.fxsVolume*0.6);
+
+      sound.setBuffer( soundsList[1] );
+    	sound.play();
+
+      setTimeout(function(){ object.model.remove(sound);delete sound; }, 200);
+    }
+    if(running)
+      setTimeout(object.walkSoundLoop, 270);
+    else
+      setTimeout(object.walkSoundLoop, 570);
+  }
+
+  // Genera el loop de sonido al caminar
+  object.walkSoundLoop();
 
 
   return object;
@@ -334,11 +413,11 @@ function loadNewPlayer(item)
           // Lo añade al objeto de jugadores utilizando su username como key
           serverPlayers[item.username] = newPlayer;
 
-          // Lo añade a la escena visual (THREE)
-          scene.add( newPlayer );
+          // Detecta si está en juego
+          if(item.status == "playing")
+            newPlayer.respawn();
 
-          // Añade sus physics a (CANNON)
-          physics.add( newPlayer.collider );
+
         }
       );
     }

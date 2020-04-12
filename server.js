@@ -152,6 +152,9 @@ io.on('connection', function(socket)
 
         servers[i].users.push(socket);
         socket.currentServer = servers[i];
+        socket.kills = 0;
+        socket.deaths = 0;
+        socket.status = "loading";
 
         socket.emit('loginResponse',{status:true,team:socket.team,users:users,teamAKills:servers[i].teamAKills,teamBKills:servers[i].teamBKills});
         return;
@@ -189,24 +192,80 @@ io.on('connection', function(socket)
         socket.currentServer.users[i].emit("sendShoot",msg);
   });
 
+  socket.on("respawn",function()
+  {
+    socket.status = "playing";
+    if(!socket.hasOwnProperty("currentServer"))return;
+    for(var i = 0; i<socket.currentServer.users.length; i++)
+      if(socket.currentServer.users[i].username != socket.username)
+        socket.currentServer.users[i].emit("userRespawned",socket.username);
+  });
+
+  socket.on("leaveRoom",function()
+  {
+    if(socket.hasOwnProperty("currentServer"))
+    {
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        if(socket.currentServer.users[i].username == socket.username)
+        {
+          socket.currentServer.users.splice(i,1);
+          break;
+        }
+      }
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        socket.currentServer.users[i].emit("userDisconnected",socket.username);
+      }
+    }
+    console.log('Cliente ('+socket.id+') ha salido de la sala.');
+  });
+
   socket.on("userKilled",function(msg)
   {
     if(!socket.hasOwnProperty("currentServer"))return;
     if(socket.team == "A") socket.currentServer.teamBKills++;
     if(socket.team == "B") socket.currentServer.teamAKills++;
+    socket.status = "death";
+    socket.deaths++;
 
-    // Si algun equipo alcanza los 20 kills
-    if(socket.currentServer.teamAKills >= 20 || socket.currentServer.teamBKills >= 20)
+    // Incrementa los kills del asesino
+    for(var i = 0; i<socket.currentServer.users.length; i++)
+      if(socket.currentServer.users[i].username == msg.killedBy)
+        socket.currentServer.users[i].kills++;
+
+    // Si algun equipo alcanza los 15 kills
+    if(socket.currentServer.teamAKills >= 15 || socket.currentServer.teamBKills >= 15)
     {
+      var scoresA = [];
+      var scoresB = [];
+      var winnerTeam = "B";
+      if(socket.currentServer.teamAKills > socket.currentServer.teamBKills )
+        winnerTeam = "A";
+
       for(var i = 0; i<socket.currentServer.users.length; i++)
       {
-        socket.currentServer.users[i].emit("gameOver",{teamAKills:socket.currentServer.teamAKills,teamBKills:socket.currentServer.teamBKills});
+        socket.currentServer.users[i].status = "loading";
+        if(socket.currentServer.users[i].team == "A")
+          scoresA.push({username:socket.currentServer.users[i].username,kills:socket.currentServer.users[i].kills,deaths:socket.currentServer.users[i].deaths});
+        if(socket.currentServer.users[i].team == "B")
+          scoresB.push({username:socket.currentServer.users[i].username,kills:socket.currentServer.users[i].kills,deaths:socket.currentServer.users[i].deaths});
+
+        socket.currentServer.users[i].kills = 0;
+        socket.currentServer.users[i].deaths = 0;
+      }
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        socket.currentServer.users[i].emit("gameOver",{winnerTeam:winnerTeam,scoresA:scoresA,scoresB:scoresB});
       }
       socket.currentServer.teamAKills = 0;
       socket.currentServer.teamBKills = 0;
     }
     else
     {
+
+
+      // Envía la notificación a todos
       for(var i = 0; i<socket.currentServer.users.length; i++)
       {
         if(socket.currentServer.users[i].username != socket.username)

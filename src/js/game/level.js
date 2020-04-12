@@ -229,11 +229,13 @@ function createMiraflores()
 
   var groundMaterial = new CANNON.Material({friction:0});
 
+  var pos = new THREE.Vector3();
+  var rot = new THREE.Quaternion();
   for(var i = 0; i<mColliders.children.length; i++)
   {
     var threeShape = mColliders.children[i];
-    var pos = threeShape.getWorldPosition();
-    var rot = threeShape.getWorldQuaternion();
+    threeShape.getWorldPosition(pos);
+    threeShape.getWorldQuaternion(rot);
     var worldBody = new CANNON.Body({ material: groundMaterial,mass: 0,shape: new CANNON.Box(new CANNON.Vec3(threeShape.scale.x,threeShape.scale.y,threeShape.scale.z))});
     worldBody.position.copy(pos);
     worldBody.quaternion.copy(rot);
@@ -302,8 +304,8 @@ function createLights()
   light.castShadow = true;
 
   // Propiedades iniciales de la luz direccional
-  light.shadow.mapSize.width = 2048;
-  light.shadow.mapSize.height = 2048;
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
   light.shadow.camera.near = 0.5;
   light.shadow.camera.far = 1000;
 
@@ -345,23 +347,22 @@ function generateLevel(msg)
   // Crea miraflores
   createMiraflores();
 
+  // Crea a los jugadores de la sala
+  msg.users.forEach((item, i) => {
+    loadNewPlayer(item);
+  });
 
   // Jugador
   player = createPlayer(msg.team,"playing");
   scene.add( player );
   physics.add( player.collider );
 
-  // Crea a los jugadores de la sala
-  msg.users.forEach((item, i) => {
-    loadNewPlayer(item);
-  });
-
 }
 
 // Particula de fuego al disparar
 function createGunFireParticle()
 {
-  var material = new THREE.SpriteMaterial( { map: texturesList[0],blending: THREE.AdditiveBlending} );
+  var material = new THREE.SpriteMaterial( {renderOrder:1000, map: texturesList[0],blending: THREE.AdditiveBlending} );
   var sprite = new THREE.Sprite( material );
   sprite.scale.set(0.5,0.5,0.5);
   return sprite;

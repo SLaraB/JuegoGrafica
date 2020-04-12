@@ -26,7 +26,7 @@ const texturesPathList = [
 ];
 
 // Paths de sonidos
-const soundsPathList = ["FX/Shoot.mp3","FX/Step.mp3"];
+const soundsPathList = ["FX/Shoot.mp3","FX/Step.mp3","OST/Soundtrack.mp3","FX/Jump.mp3","FX/Pain1.wav","FX/Pain2.wav","FX/Death.wav","FX/Jump1.mp3"];
 
 
 // Activa el cache
@@ -148,6 +148,14 @@ function loadSounds()
         loadMenu.hide();
         setUsernameInput.show();
         setUsernameBtn.show();
+
+        soundtrack = new THREE.Audio( uiAudio );
+        soundtrack.setLoop( true );
+        soundtrack.setVolume(settings.audio.musicVolume);
+        soundtrack.setBuffer( soundsList[2] );
+        $("#settingsBtn").show();
+
+
       }
       else
         loadSounds();

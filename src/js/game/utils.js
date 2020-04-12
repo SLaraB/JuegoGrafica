@@ -42,7 +42,7 @@
         var texture = new THREE.Texture(c);
         texture.needsUpdate = true;
 
-        var spriteMaterial = new THREE.SpriteMaterial( { map: texture } );
+        var spriteMaterial = new THREE.SpriteMaterial( { renderOrder:1000,map: texture } );
         var sprite = new THREE.Sprite( spriteMaterial );
         sprite.scale.set(metrics.width/700, canvas.height/700, 1);
         return sprite;

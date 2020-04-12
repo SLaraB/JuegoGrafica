@@ -28,14 +28,18 @@ var gameState = "loading";
 // Otros jugadores
 var serverPlayers = {};
 
+// Sonidos UI
+var uiAudio = new THREE.AudioListener();
+var soundtrack;
+
 // Settings del juego
 var settings =
 {
   audio:
   {
-    fxsVolume:0,
-    musicVolume:0,
-    enabled:false
+    fxsVolume:1,
+    musicVolume:1,
+    enabled:true
   },
   shadows:
   {
@@ -68,7 +72,7 @@ function init(msg)
   mouseLocker = new THREE.PointerLockControls( null ,  gameWindow[0] );
 
   //add event listener to your document.body
-  gameWindow[0].addEventListener('click', function () {
+  gameUI[0].addEventListener('click', function () {
       mouseLocker.lock();
   }, false );
 
@@ -170,4 +174,30 @@ function updateBulletHoles()
     bulletHoles[i].position.copy(bulletHoles[i].body.position);
     bulletHoles[i].quaternion.copy(bulletHoles[i].body.quaternion);
   }
+}
+
+function playAgain()
+{
+  serverMessages.html("");
+  aKillCounter.html(0);
+  bKillCounter.html(0);
+  player.respawn();
+  gameOverWindow.hide();
+}
+function leaveRoom()
+{
+  /*
+  socket.emit("leaveRoom");
+  gameState = "loading";
+  gameUI.hide();
+  gameOverWindow.hide();
+  gameWindow.hide();
+  setUsernameInput.hide();
+  setUsernameBtn.hide();
+  mainMenuError.hide();
+  createServerBtn.show();
+  showServersBtn.show();
+  mainMenu.show();
+  */
+  window.location.href = "/";
 }
