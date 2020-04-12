@@ -9,7 +9,7 @@ var texturesList = [];
 var soundsList = [];
 
 // Paths de modelos
-const modelsPathList = ["characters/player.glb","weapons/G36C.glb"];
+const modelsPathList = ["characters/player.glb","weapons/G36C.glb","buildings/Miraflores.glb"];
 
 // Paths de texturas
 const texturesPathList = [

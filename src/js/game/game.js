@@ -119,13 +119,14 @@ function updateShadows()
   // Verifica que estén activas
   if(!settings.shadows.enabled) return;
 
+  var shadowDistance = 30;
   // Calcula el rango de las sombras a partir de la posición del jugador principal
   var pPos = player.getPos();
   var angle = (new THREE.Vector3(pPos.x,pPos.y,0)).angleTo ( light.position );
-  light.shadow.camera.top = 18 - pPos.x * Math.sin(angle);
-  light.shadow.camera.bottom = -18 - pPos.x * Math.sin(angle);
-  light.shadow.camera.left = -18 - pPos.z;
-  light.shadow.camera.right = 18 - pPos.z;
+  light.shadow.camera.top = shadowDistance - pPos.x * Math.sin(angle);
+  light.shadow.camera.bottom = -shadowDistance - pPos.x * Math.sin(angle);
+  light.shadow.camera.left = -shadowDistance - pPos.z;
+  light.shadow.camera.right = shadowDistance - pPos.z;
   light.shadow.camera.updateProjectionMatrix();
 }
 

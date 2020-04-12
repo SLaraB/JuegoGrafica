@@ -20,10 +20,10 @@ var mouseLocker;
 var dir = new THREE.Vector3(0,0,0);
 
 // Velocidad al correr
-var runSpeed = 10;
+var runSpeed = 5;
 
 // Velocidad al estar agachado
-var crouchSpeed = 6;
+var crouchSpeed = 2;
 
 // Vector utilizado para hacer los cálculos de rotación en el eje X de la cámara
 var v1 = new THREE.Vector3();
@@ -129,9 +129,9 @@ function inputEvents()
   player.getWorldDirection(dir);
 
   // Si el jugador está tocando el suelo, su velocidad es mayor
-  if (player.grounded) runSpeed = 10;
+  if (player.grounded) runSpeed = 6;
   // Si el jugador no está tocando el suelo, su velocidad es menor
-  else runSpeed = 8;
+  else runSpeed = 6;
 
   // Movimiento si el jugador ha muerto
   if(gameState == "dead")
@@ -292,7 +292,7 @@ function inputEvents()
   if (!player.grounded && gameState != "dead") player.currentAnimation = "FALLING";
 
   // Saltar
-  if (player.grounded && input.keys.space) player.collider.velocity.y = 8;
+  if (player.grounded && input.keys.space) player.collider.velocity.y = 7;
 
   // Si el jugador ha muerto
   if(player.currentAnimation != player.prevAnimation && gameState != "dead")

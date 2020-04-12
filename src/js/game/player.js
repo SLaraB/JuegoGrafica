@@ -74,11 +74,15 @@ function createPlayer(team,status)
     // Activa la generación de sombras sobre otros objectos
     object.model.children[1].castShadow = true;
 
+    // Recibe sombras
+    object.model.children[1].receiveShadow = true;
+
     // Obtiene el material
     object.material = object.model.children[1].material;
 
     // Activa la transparencia
     object.material.transparent = true;
+    object.material.side = THREE.FrontSide;
 
     // Obtiene el modelo del arma importado
     var weapon = modelsList[1];
@@ -88,6 +92,13 @@ function createPlayer(team,status)
 
     // Activa la generación de sombras sobre otros objectos
     object.weapon.children[0].castShadow = true;
+
+    // Recibe sombras
+    object.weapon.children[0].receiveShadow = true;
+
+    // Ajusta color arma
+    object.weapon.children[0].material.color = new THREE.Color(0.5,0.5,0.5);
+    object.weapon.children[0].material.roughness = 1;
 
     // Ajusta el tamaño del arma
     object.weapon.scale.set(0.1,0.1,0.1);
@@ -112,6 +123,7 @@ function createPlayer(team,status)
 
     // Activa la transparencia
     object.weaponMaterial.transparent = true;
+    object.weaponMaterial.side = THREE.FrontSide;
 
     // Se crea una partícula que simula el fuego de un disparo
     object.gunFireParticle = createGunFireParticle();
@@ -163,13 +175,15 @@ function createPlayer(team,status)
   // Configura los physics (Colliders)
   object.setupColliders = function()
   {
+    var groundMaterial = new CANNON.Material({friction:0});
+
     // Se crean las geometrias del collider
     var legsShape = new CANNON.Sphere(0.3);
     var headShape = new CANNON.Sphere(0.15);
     var bodyShape = new CANNON.Box(new CANNON.Vec3(0.2,0.43,0.2));
 
     // Se crea el collider
-    object.collider = new CANNON.Body({ mass: 1 });
+    object.collider = new CANNON.Body({material:groundMaterial, mass: 1 });
     object.collider.angularDamping = 1;
 
     // Se le asigna identificadores
