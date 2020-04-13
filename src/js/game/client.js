@@ -166,6 +166,36 @@ function listenToServerMessages()
   // Notifica que un usuario ha realizado un disparo
   socket.on("sendShoot",function(msg)
   {
+    // Si se está en modo juego
+    if(gameState == "playing")
+    {
+      if(msg.status)
+      {
+        // Muestra la animación de "daño" en pantalla
+        damageScreen.addClass("active").show();
+
+        // Oculta la animación de daño despues de 200 milisegundos
+        setTimeout(function(){ damageScreen.removeClass("active").hide();}, 200);
+
+        // Resta vida al jugador principal
+        player.setHealth(player.health - 10,msg.by);
+      }
+
+      // Obtiene al jugador almacenado localmente
+      var ply = serverPlayers[msg.by];
+
+      // Verifica que esté previamente almacenado
+      if(ply == undefined)return;
+
+      // Se simula el disparo localmente
+      ply.shoot();
+    }
+  });
+
+  /* OLD
+  // Notifica que un usuario ha realizado un disparo
+  socket.on("sendShoot",function(msg)
+  {
     // Obtiene al jugador almacenado localmente
     var ply = serverPlayers[msg.username];
 
@@ -175,7 +205,7 @@ function listenToServerMessages()
     // Se simula el disparo localmente
     ply.shoot(msg);
   });
-
+  */
   // Notifica que un usuario ha reaparecido
   socket.on("userRespawned",function(user)
   {
@@ -192,6 +222,13 @@ function listenToServerMessages()
   // Si se termina el juego
   socket.on("gameOver",function(msg)
   {
+    input.keys.up = false;
+    input.keys.left = false;
+    input.keys.right = false;
+    input.keys.down = false;
+    input.keys.shift = false;
+    input.keys.space = false;
+
     gameState = "gameOver";
     gameOverWindow.find(".title").hide();
 
@@ -224,7 +261,16 @@ function listenToServerMessages()
       gameOverWindow.find(".enemies table").html(htmlA);
     }
 
-    gameOverWindow.fadeIn(2000);
+    gameOverWindow.fadeIn(2000,function(){
+      // Crea a los jugadores de la sala
+      for(var key in serverPlayers)
+      {
+        scene.remove(serverPlayers[key]);
+        physics.removeBody(serverPlayers[key].collider);
+      }
+
+      mouseLocker.unlock();
+    });
 
   });
 

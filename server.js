@@ -147,7 +147,7 @@ io.on('connection', function(socket)
         for(var u = 0;u<servers[i].users.length;u++)
         {
           users.push({username:servers[i].users[u].username,team:servers[i].users[u].team,status:servers[i].users[u].status});
-          servers[i].users[u].emit("newUserLogged",{username:socket.username,team:socket.team,status:"loading"});
+          servers[i].users[u].emit("newUserLogged",{username:socket.username,team:socket.team,status:"playing"});
         }
 
         servers[i].users.push(socket);
@@ -185,11 +185,30 @@ io.on('connection', function(socket)
 
   socket.on("sendShoot",function(msg)
   {
-    msg.username = socket.username;
     if(!socket.hasOwnProperty("currentServer"))return;
-    for(var i = 0; i<socket.currentServer.users.length; i++)
-      if(socket.currentServer.users[i].username != socket.username)
-        socket.currentServer.users[i].emit("sendShoot",msg);
+
+
+    if(msg.status)
+    {
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        if(socket.currentServer.users[i].username == msg.target)
+          socket.currentServer.users[i].emit("sendShoot",{status:true,by:socket.username});
+        else if(socket.currentServer.users[i].username != socket.username)
+          socket.currentServer.users[i].emit("sendShoot",{status:false,by:socket.username});
+      }
+    }
+    else
+    {
+      for(var i = 0; i<socket.currentServer.users.length; i++)
+      {
+        if(socket.currentServer.users[i].username != socket.username)
+          socket.currentServer.users[i].emit("sendShoot",{status:false,by:socket.username});
+      }
+    }
+
+
+
   });
 
   socket.on("respawn",function()
@@ -235,7 +254,7 @@ io.on('connection', function(socket)
         socket.currentServer.users[i].kills++;
 
     // Si algun equipo alcanza los 15 kills
-    if(socket.currentServer.teamAKills >= 15 || socket.currentServer.teamBKills >= 15)
+    if(socket.currentServer.teamAKills >= 10 || socket.currentServer.teamBKills >= 10)
     {
       var scoresA = [];
       var scoresB = [];

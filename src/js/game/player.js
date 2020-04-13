@@ -282,6 +282,12 @@ function createPlayer(team,status)
     // Si se acaba la vida
     if(value <= 0)
     {
+      input.keys.up = false;
+      input.keys.left = false;
+      input.keys.right = false;
+      input.keys.down = false;
+      input.keys.shift = false;
+      input.keys.space = false;
       // Sonido de muerte
       var sound = new THREE.PositionalAudio( player.audioListener );
       object.model.add(sound);
@@ -322,11 +328,13 @@ function createPlayer(team,status)
         object.model.children[1].castShadow = false;
         object.weapon.children[0].castShadow = false;
 
+
+
         // Comienza el fadeout
         player.materialFadeOut = true;
 
         // Muestra el menú de respawn
-        respawnWindow.fadeIn(1000);
+        respawnWindow.fadeIn(1000,function(){mouseLocker.unlock();});
       }, 3000);
 
     }
@@ -370,7 +378,7 @@ function createPlayer(team,status)
     }
 
     // Notifica al servidor que se ha disparado (Se envia la posición inicial y dirección)
-    socket.emit("sendShoot",{cx:cPos.x,cy:cPos.y,cz:cPos.z,ax:aPos.x,ay:aPos.y,az:aPos.z});
+    //socket.emit("sendShoot",{cx:cPos.x,cy:cPos.y,cz:cPos.z,ax:aPos.x,ay:aPos.y,az:aPos.z});
 
     // Obtiene hit point desde el centro de la cámara hacia la mira
     if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(cPos.x,cPos.y,cPos.z),to:new CANNON.Vec3(aPos.x,aPos.y,aPos.z)}))
@@ -391,8 +399,19 @@ function createPlayer(team,status)
 
         // Se añade un impacto de bala al primer collider intersectado
         createBulletHole(hitPos.x,hitPos.y,hitPos.z,hitNormal.x,hitNormal.y,hitNormal.z,object.ray.result.body,gunPos);
+
+        if(object.ray.result.body.hasOwnProperty("player"))
+        {
+          if(object.ray.result.body.player.team != object.team)
+          {
+            socket.emit("sendShoot",{status:true,target:object.ray.result.body.player.username});
+            return;
+          }
+        }
       }
     }
+    socket.emit("sendShoot",{status:false});
+
   }
 
   // Actualiza la munición

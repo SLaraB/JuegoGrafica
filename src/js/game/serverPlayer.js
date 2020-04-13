@@ -17,6 +17,8 @@ function createServerPlayer(username,status,team,human,gun)
   // Asigna el nombre de usuario
   object.username = username;
 
+  object.name = username;
+
   // Almacena el equipo asignado por la sala
   object.team = team;
 
@@ -199,6 +201,8 @@ function createServerPlayer(username,status,team,human,gun)
     // Se le asigna identificadores
     object.collider.class = "player";
 
+    object.collider.player = object;
+
     // Se añaden las geometrías al collider
     object.collider.addShape(legsShape, new CANNON.Vec3( 0, 0, 0));
     object.collider.addShape(bodyShape, new CANNON.Vec3( 0, 0.6, 0));
@@ -206,7 +210,7 @@ function createServerPlayer(username,status,team,human,gun)
   }
 
   // Simula un disparo del jugador
-  object.shoot = function(msg)
+  object.shoot = function()
   {
     // Muestra la partícula de disparo
     object.gunFireParticle.visible = true;
@@ -223,33 +227,6 @@ function createServerPlayer(username,status,team,human,gun)
   	sound.play();
     setTimeout(function(){ object.model.remove(sound); delete sound;}, 200);
 
-
-    // Ray con las coordenadas recibidas del servidor
-    if(object.ray.intersectWorld(physics,{mode:CANNON.Ray.CLOSEST,from:new CANNON.Vec3(msg.cx,msg.cy,msg.cz),to:new CANNON.Vec3(msg.ax,msg.ay,msg.az)}))
-    {
-      // Si acierta al jugador principal
-      if(object.ray.result.body.hasOwnProperty("owner") && object.team != player.team )
-      {
-        // Si se está en modo juego
-        if(gameState == "playing")
-        {
-          // Muestra la animación de "daño" en pantalla
-          damageScreen.addClass("active").show();
-
-          // Oculta la animación de daño despues de 200 milisegundos
-          setTimeout(function(){ damageScreen.removeClass("active").hide();}, 200);
-
-          // Resta vida al jugador principal
-          player.setHealth(player.health - 15,object.username);
-        }
-      }
-
-      var hitPos = object.ray.result.hitPointWorld;
-      var hitNormal = object.ray.result.hitNormalWorld;
-
-      // Se añade un impacto de bala al primer collider intersectado
-      createBulletHole(hitPos.x,hitPos.y,hitPos.z,hitNormal.x,hitNormal.y,hitNormal.z,object.ray.result.body,new CANNON.Vec3(msg.cx,msg.cy,msg.cz));
-    }
 
   }
 
@@ -342,10 +319,14 @@ function createServerPlayer(username,status,team,human,gun)
     object.status = "playing";
 
     // Lo añade a la escena visual (THREE)
-    scene.add( object );
+    if(scene.getObjectById(object.id) == undefined)
+    {
+      scene.add( object );
 
-    // Añade sus physics a (CANNON)
-    physics.add( object.collider );
+      // Añade sus physics a (CANNON)
+      physics.add( object.collider );
+    }
+
 
     if(object.team == "B")
     {
